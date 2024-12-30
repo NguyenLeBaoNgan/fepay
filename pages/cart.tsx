@@ -5,7 +5,7 @@ import axiosClient from "@/utils/axiosClient";
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
-
+  const [error, setError] = useState<string | null>(null);
   const calculateTotal = () =>
     cartItems.reduce((total: number, item: any) => total + item.total, 0);
 
@@ -30,10 +30,10 @@ const Cart: React.FC = () => {
       console.error("Product ID is missing or invalid");
       return;
     }
-    updatedItem.quantity = newQuantity;
-    updatedItem.total = updatedItem.price * newQuantity;
+    // updatedItem.quantity = newQuantity;
+    // updatedItem.total = updatedItem.price * newQuantity;
 
-    localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+    // localStorage.setItem("cart", JSON.stringify(updatedCartItems));
 
     try {
       const response = await axiosClient.post("/api/check-stock", {
@@ -46,19 +46,31 @@ const Cart: React.FC = () => {
       });
       console.log("Response from API:", response);
       if (response.status === 200) {
+        updatedItem.quantity = newQuantity;
+        updatedItem.total = updatedItem.price * newQuantity;
         setCartItems(updatedCartItems);
         localStorage.setItem("cart", JSON.stringify(updatedCartItems));
         setError(null);
       } else if (response.status === 400) {
         const availableQuantity = response.data.available_quantity;
-        updatedItem.quantity = availableQuantity;
-        updatedItem.total = updatedItem.price * availableQuantity;
+        // updatedItem.quantity = availableQuantity;
+        // updatedItem.total = updatedItem.price * availableQuantity;
 
-        setCartItems(updatedCartItems);
-        localStorage.setItem("cart", JSON.stringify(updatedCartItems));
-        console.log(
-          `Insufficient stock. The available quantity is ${availableQuantity}.`
-        );
+        // setCartItems(updatedCartItems);
+        // localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+        // console.log(
+        //   `Insufficient stock. The available quantity is ${availableQuantity}.`
+        // );
+        if (newQuantity > availableQuantity) {
+          setError(
+            `Insufficient stock. The available quantity is ${availableQuantity}.`
+          );
+          updatedItem.quantity = availableQuantity; // Giới hạn lại số lượng
+          updatedItem.total = updatedItem.price * availableQuantity;
+
+          setCartItems(updatedCartItems);
+          localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+        }
       }
     } catch (err) {
       console.error("Lỗi kiểm tra tồn kho:", err);
@@ -128,9 +140,12 @@ const Cart: React.FC = () => {
             </tbody>
           </table>
         )}
+        {error && <div className="text-red-500 mt-4">{error}</div>}
         <div className="total mt-6 text-right">
           <p className="text-xl font-semibold">Total: {calculateTotal()} VND</p>
+          
         </div>
+       
       </div>
 
       <Footer />
@@ -139,6 +154,3 @@ const Cart: React.FC = () => {
 };
 
 export default Cart;
-function setError(arg0: null) {
-  throw new Error("Function not implemented.");
-}

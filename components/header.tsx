@@ -23,7 +23,7 @@ const Header: React.FC = () => {
   // const [isLoggedIn, setIsLoggedIn]   = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const isLoggedIn = auth?.isLoggedIn; 
+  const isLoggedIn = auth?.isLoggedIn;
   // Kiểm tra xem user có token không
   // useEffect(() => {
   //   const token = getTokenFromCookie();
@@ -84,7 +84,7 @@ const Header: React.FC = () => {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            {isLoggedIn? (
+            {isLoggedIn ? (
               <>
                 {/* Logout Button */}
                 <Button variant="ghost" onClick={handleLogout}>
@@ -95,6 +95,9 @@ const Header: React.FC = () => {
                 {/* Profile Link */}
                 <Button asChild>
                   <Link href="/profile">Profile</Link>
+                </Button>
+                <Button>
+                  <Link href="/cart">Cart</Link>
                 </Button>
               </>
             ) : (
@@ -107,6 +110,9 @@ const Header: React.FC = () => {
                 {/* Register Link */}
                 <Button asChild>
                   <Link href="/auth/register">Register</Link>
+                </Button>
+                <Button>
+                  <Link href="/cart">Cart</Link>
                 </Button>
               </>
             )}

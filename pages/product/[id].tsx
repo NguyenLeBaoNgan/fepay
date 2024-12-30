@@ -49,21 +49,99 @@ const ProductDetail: React.FC = () => {
     setShowForm(true);
   };
 
-  const handleAddToCartConfirm = () => {
+  // const handleAddToCartConfirm = () => {
+  //   if (product) {
+  //     const newItem = {
+  //       product_id: product.id,
+  //       name: product.name,
+  //       price: product.price,
+  //       quantity: quantity,
+  //       total: product.price * quantity,
+  //     };
+
+  //     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+  //     const existingItemIndex = existingCart.findIndex(
+  //       (item: any) => item.product_id === product.id
+  //     );
+
+  //     if (existingItemIndex !== -1) {
+  //       // Cập nhật số lượng nếu sản phẩm đã tồn tại
+  //       existingCart[existingItemIndex].quantity += quantity;
+  //       existingCart[existingItemIndex].total =
+  //         existingCart[existingItemIndex].price *
+  //         existingCart[existingItemIndex].quantity;
+  //     } else {
+  //       // Thêm sản phẩm mới
+  //       existingCart.push(newItem);
+  //     }
+  //     localStorage.setItem("cart", JSON.stringify(existingCart));
+  //     alert("Product added to cart!");
+  //     setShowForm(false);
+  //   }
+  // };
+  const handleAddToCartConfirm = async () => {
     if (product) {
-      const newItem = {
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: quantity,
-        total: product.price * quantity,
+      // Tạo dữ liệu yêu cầu kiểm tra tồn kho
+      const requestPayload = {
+        items: [
+          {
+            product_id: product.id,
+            quantity: quantity,
+          },
+        ],
       };
 
-      const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-      existingCart.push(newItem);
-      localStorage.setItem("cart", JSON.stringify(existingCart));
-      alert("Product added to cart!");
-      setShowForm(false);
+      try {
+        // Gọi API kiểm tra tồn kho
+        const response = await axiosClient.post(
+          "/api/check-stock",
+          requestPayload
+        );
+
+        if (response.status === 200) {
+          const availableQuantity = response.data.available_quantity;
+
+          // Nếu số lượng còn lại nhỏ hơn số lượng yêu cầu
+          if (quantity > availableQuantity) {
+            alert(
+              `Insufficient stock. Only ${availableQuantity} item(s) available.`
+            );
+            return;
+          }
+
+          // Thêm sản phẩm vào giỏ hàng nếu còn hàng
+          const newItem = {
+            product_id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: quantity,
+            total: product.price * quantity,
+          };
+
+          const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
+          const existingItemIndex = existingCart.findIndex(
+            (item: any) => item.product_id === product.id
+          );
+
+          if (existingItemIndex !== -1) {
+            // Cập nhật số lượng nếu sản phẩm đã tồn tại
+            existingCart[existingItemIndex].quantity += quantity;
+            existingCart[existingItemIndex].total =
+              existingCart[existingItemIndex].price *
+              existingCart[existingItemIndex].quantity;
+          } else {
+            // Thêm sản phẩm mới
+            existingCart.push(newItem);
+          }
+
+          localStorage.setItem("cart", JSON.stringify(existingCart));
+          alert("Product added to cart!");
+          setShowForm(false);
+        }
+      } catch (err) {
+        console.error("Failed to check stock:", err);
+        alert("An error occurred while checking stock. Please try again.");
+      }
     }
   };
 
