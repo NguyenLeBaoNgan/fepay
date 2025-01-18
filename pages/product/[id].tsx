@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import axiosClient from "../../utils/axiosClient";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-
+import { toast } from "react-toastify";
 interface ProductDetail {
   id: number;
   name: string;
@@ -103,6 +103,9 @@ const ProductDetail: React.FC = () => {
 
           // Nếu số lượng còn lại nhỏ hơn số lượng yêu cầu
           if (quantity > availableQuantity) {
+            // toast.warn(`Chỉ còn ${availableQuantity} sản phẩm trong kho.`, {
+            //   position: "top-right",
+            // });
             alert(
               `Insufficient stock. Only ${availableQuantity} item(s) available.`
             );
@@ -164,7 +167,7 @@ const ProductDetail: React.FC = () => {
           </div>
 
           <div className="product-info flex flex-col lg:ml-12 mt-4 lg:mt-0 w-full">
-            <div className="category-banner mt-3 p-3 bg-gradient-to-r rounded-full shadow-lg w-max">
+            <div className="category-banner mt-3 p-3 w-max">
               <span className="category-text text-lg font-semibold">
                 {Array.isArray(product.category) && product.category.length > 0
                   ? product.category.map((cat, index) => (

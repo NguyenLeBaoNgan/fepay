@@ -26,8 +26,8 @@ const ProductList: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<{
-    category?: string;
-    priceRange?: string;
+    category: string;
+    priceRange: string;
   }>({
     category: "",
     priceRange: "",
@@ -52,6 +52,7 @@ const ProductList: React.FC = () => {
         const categoryResponse = await axiosClient.get<Category[]>(
           "/api/categories"
         );
+        console.log("Categories:", categoryResponse.data);
         setCategories(categoryResponse.data);
       } catch (err) {
         setError("Failed to fetch categories");
@@ -69,11 +70,18 @@ const ProductList: React.FC = () => {
       [name]: value,
     }));
   };
-
+  // console.log("Product before:", products);
   const filteredProducts = products.filter((product) => {
+    // console.log("Product category:", product.category);
     let match = true;
-    if (filters.category && product.category.name !== filters.category) {
-      match = false;
+    if (filters.category) {
+      const productCategory = Array.isArray(product.category)
+        ? product.category.map((cat) => cat.name.toLowerCase().trim())
+        : [product.category?.name?.toLowerCase().trim() || ""];
+      const filterCategory = filters.category.toLowerCase().trim();
+      if (!productCategory.includes(filterCategory)) {
+        match = false;
+      }
     }
     if (filters.priceRange) {
       const [minPrice, maxPrice] = filters.priceRange.split("-").map(Number);
@@ -88,11 +96,11 @@ const ProductList: React.FC = () => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="product-list container">
+    <div className="product-list">
       <h1 className="title">Product List</h1>
 
       <div className="filters">
-        {/* <select
+        <select
           name="category"
           value={filters.category}
           onChange={handleFilterChange}
@@ -104,7 +112,7 @@ const ProductList: React.FC = () => {
               {category.name}
             </option>
           ))}
-        </select> */}
+        </select>
 
         <select
           name="priceRange"
@@ -115,10 +123,10 @@ const ProductList: React.FC = () => {
           <option value="">All Price Ranges</option>
           <option value="0-10000">0 - 10,000 VND</option>
           <option value="10000-50000">10,000 - 50,000 VND</option>
+          <option value="50000-max">50,000+ VND</option>
         </select>
       </div>
 
-      {/* Product Grid */}
       <div className="grid-container">
         {filteredProducts.map((product) => (
           <div key={product.id} className="product-card">

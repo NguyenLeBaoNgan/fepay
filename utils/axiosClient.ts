@@ -2,8 +2,9 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosClient = axios.create({
-  baseURL: "http://127.0.0.1:8000", 
-  withCredentials: true, 
+//   baseURL: "http://127.0.0.1:8000",
+baseURL: "https://14b5-1-53-82-87.ngrok-free.app",
+  withCredentials: true,
 });
 
 // Hàm lấy CSRF token từ Laravel Sanctum
@@ -17,12 +18,11 @@ axiosClient.interceptors.request.use((config) => {
 
 export const getCsrfToken = async () => {
   try {
-
-    await axiosClient.get("/sanctum/csrf-cookie"); 
+    await axiosClient.get("/sanctum/csrf-cookie");
     console.log("CSRF cookie đã được thiết lập thành công.");
   } catch (error) {
     console.error("Lỗi khi lấy CSRF token:", error);
-    throw error; 
+    throw error;
   }
 };
 
