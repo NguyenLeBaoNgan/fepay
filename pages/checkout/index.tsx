@@ -3,6 +3,7 @@ import axiosClient from "@/utils/axiosClient";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import Cookies from "js-cookie";
+import router from "next/router";
 
 const CheckoutPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -116,10 +117,11 @@ const CheckoutPage: React.FC = () => {
       });
 
       if (response.status === 200) {
-        setMessage(
-          "Thanh toán thành công! Giỏ hàng vẫn được giữ để bạn kiểm tra."
-        );
-        localStorage.removeItem("cart"); 
+        setMessage("Thanh toán thành công!");
+          localStorage.removeItem("cart"); 
+          setTimeout(() => {
+            router.push(`/order-success?order_id=${orderId}`);
+        }, 100);
       } else {
         setMessage("Thanh toán thất bại. Vui lòng thử lại.");
       }

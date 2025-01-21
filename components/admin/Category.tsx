@@ -2,20 +2,22 @@ import React from "react";
 import DataTable from "./DataTable";
 
 interface Category {
-  id: string;
+  id: number;
   name: string;
 }
 
 interface CategoryProps {
   categories: Category[];
+  onEdit?: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
-const Category: React.FC<CategoryProps> = ({ categories }) => {
+const Category: React.FC<CategoryProps> = ({ categories , onEdit, onDelete }) => {
   return (
     <DataTable
       title="Category"
       data={categories}
-      columns={[{ key: "name", label: "Category" }]}
+      columns={[{ key: "name", label: "Name" }]}
       onEdit={onEdit}
       onDelete={onDelete}
     />

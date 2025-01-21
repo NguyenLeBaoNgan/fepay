@@ -32,7 +32,7 @@ const AdminDashboard: React.FC = () => {
         ] = await Promise.all([
           axiosClient.get("/api/products"),
           axiosClient.get("/api/getalluser"),
-          axiosClient.get("api/categories"),
+          axiosClient.get("/api/categories"),
           // axiosClient.get("/api/orders"),
         ]);
 
