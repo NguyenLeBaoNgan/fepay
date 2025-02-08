@@ -10,6 +10,7 @@ import User from "@/components/admin/User";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EditUser from "@/components/admin/user/Edit";
+import Orders from "@/components/admin/Orders";
 
 const AdminDashboard: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -28,19 +29,20 @@ const AdminDashboard: React.FC = () => {
           productsResponse,
           usersResponse,
           categoriesResponse,
-          // ordersResponse,
+          ordersResponse,
         ] = await Promise.all([
           axiosClient.get("/api/products"),
           axiosClient.get("/api/getalluser"),
           axiosClient.get("/api/categories"),
-          // axiosClient.get("/api/orders"),
+          axiosClient.get("/api/orders"),
         ]);
 
         setProducts(productsResponse.data);
         setUsers(usersResponse.data);
         setCategories(categoriesResponse.data);
         console.log("API Response:", categoriesResponse.data);
-        // setOrders(ordersResponse.data);
+        setOrders(ordersResponse.data);
+        console.log("order:", categoriesResponse.data);
       } catch (error) {
         toast.error("Error loading data!");
       }
@@ -138,6 +140,7 @@ const AdminDashboard: React.FC = () => {
         {selectedTab === "dashboard" && (
           <DashboardOverview
             products={products}
+            //  categories={categories}
             orders={orders}
             users={users}
           />
@@ -150,6 +153,7 @@ const AdminDashboard: React.FC = () => {
           />
         )}
         {selectedTab === "categories" && <Category categories={categories} />}
+        {selectedTab === "orders" && <Orders orders={orders} />}
         {selectedTab === "users" && (
           <User users={users} onEdit={handleEditUser} onDelete={DeleteUser} />
         )}

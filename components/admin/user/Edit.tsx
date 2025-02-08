@@ -1,102 +1,130 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axiosClient from "@/utils/axiosClient";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface EditUserProps {
-  editingUser: any;
-  setEditingUser: (user: any | null) => void;
-  users: any[];
-  setUsers: (users: any[]) => void;
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  status: string;
+  roles: string[];
 }
 
-const EditUser: React.FC<EditUserProps> = ({
-  editingUser,
-  setEditingUser,
-  users,
-  setUsers,
-}) => {
+interface EditUserProps {
+  editingUser: User | null;
+  setEditingUser: (user: User | null) => void;
+  users: User[];
+  setUsers: (users: User[]) => void;
+}
+
+const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users, setUsers }) => {
+  const [roles, setRoles] = useState<string[]>([]);
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [status, setStatus] = useState<string>("active");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await axiosClient.get("/api/roles");
+        if (Array.isArray(response.data)) {
+          setRoles(response.data.map((role: any) => role.name));
+        } else {
+          toast.error("Dữ liệu vai trò không hợp lệ!");
+        }
+      } catch (error) {
+        console.error("Error fetching roles:", error);
+        toast.error("Lỗi lấy danh sách vai trò!");
+      }
+    };
+
+    if (editingUser) {
+      fetchRoles();
+      setStatus(editingUser.status || "active");
+      setSelectedRole(editingUser.roles?.[0] || "");
+    }
+  }, [editingUser]);
+
   const handleSave = async () => {
     if (!editingUser) return;
 
+    setLoading(true);
     try {
-      const response = await axiosClient.post(
-        `/api/user/updateuser/${editingUser.id}`,
-        editingUser
-      );
-      toast.success("User updated successfully!");
-      setUsers(
-        users.map((user) => (user.id === editingUser.id ? response.data : user))
-      );
+      const updatedData = {
+        name: editingUser.name,
+        email: editingUser.email,
+        status: status,
+        roles: selectedRole ? [selectedRole] : [],
+      };
+
+      const response = await axiosClient.post(`/api/updateuser/${editingUser.id}`, updatedData);
+      const updatedUser = { ...response.data, roles: response.data.roles || editingUser.roles };
+
+      setUsers(users.map((user) => (user.id === editingUser.id ? updatedUser : user)));
+      toast.success("Cập nhật thành công!");
       setEditingUser(null);
     } catch (error) {
       console.error("Error updating user:", error);
-      toast.error("Error updating user!");
+      toast.error("Lỗi cập nhật người dùng!");
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">
-        Chỉnh sửa người dùng
-      </h2>
-      <div className="space-y-6">
-        {/* Tên người dùng */}
-        <div>
-          <label className="block text-gray-700 font-medium mb-2">
-            Tên người dùng
-          </label>
-          <input
-            type="text"
-            value={editingUser.name}
-            onChange={(e) =>
-              setEditingUser({ ...editingUser, name: e.target.value })
-            }
-            className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
-        </div>
+  if (!editingUser) return null;
 
-        {/* Email */}
+  return (
+    <Card className="max-w-2xl mx-auto shadow-lg border rounded-xl p-6">
+      <CardHeader>
+        <h2 className="text-xl font-bold text-gray-800">Chỉnh sửa người dùng</h2>
+      </CardHeader>
+      <CardContent className="space-y-4">
         <div>
-          <label className="block text-gray-700 font-medium mb-2">Email</label>
-          <input
-            type="email"
-            value={editingUser.email}
-            onChange={(e) =>
-              setEditingUser({ ...editingUser, email: e.target.value })
-            }
-            className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
+          <Label>Tên người dùng</Label>
+          <Input value={editingUser.name} onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })} />
         </div>
         <div>
-          <label className="block text-gray-700 font-medium mb-2">
-            Password
-          </label>
-          <input
-            type="password"
-            value={editingUser.password}
-            onChange={(e) =>
-              setEditingUser({ ...editingUser, password: e.target.value })
-            }
-            className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
+          <Label>Email</Label>
+          <Input value={editingUser.email} onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })} />
         </div>
-        {/* Buttons */}
-        <div className="flex justify-end space-x-4 pt-6 mt-8 border-t">
-          <button
-            onClick={() => setEditingUser(null)}
-            className="px-6 py-2 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Hủy
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Lưu thay đổi
-          </button>
+        <div>
+          <Label>Chọn vai trò</Label>
+          <Select value={selectedRole} onValueChange={setSelectedRole}>
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn vai trò" />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map((role) => (
+                <SelectItem key={role} value={role}>{role}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-      </div>
-    </div>
+        <div>
+          <Label>Trạng thái</Label>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn trạng thái" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="locked">Locked</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-end space-x-4">
+        <Button variant="outline" onClick={() => setEditingUser(null)}>Hủy</Button>
+        <Button onClick={handleSave} disabled={loading} className={loading ? "opacity-50 cursor-not-allowed" : ""}>
+          {loading ? "Đang lưu..." : "Lưu thay đổi"}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 

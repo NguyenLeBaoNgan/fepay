@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import axiosClient from "@/utils/axiosClient"; // Đảm bảo axiosClient được cấu hình đúng
-import DataTable from "./DataTable"; // Import DataTable của bạn
+import axiosClient from "@/utils/axiosClient"; // Đảm bảo đường dẫn chính xác tới file axiosClient
+import Link from "next/link";
 
+interface Category {
+  id: number;
+  name: string;
+}
 
 const CategoryList: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -23,29 +27,28 @@ const CategoryList: React.FC = () => {
     fetchCategories();
   }, []);
 
-  const handleEdit = (id: string) => {
-    console.log("Edit category with id:", id);
-    // Add logic for editing the category
-  };
-
-  const handleDelete = (id: string) => {
-    console.log("Delete category with id:", id);
-    // Add logic for deleting the category
-  };
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="category-list">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">Category List</h1>
-      <DataTable
-        title="Categories"
-        data={categories}
-        columns={[{ key: "name", label: "Category Name" }]}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      {/* <h1 className="title">Category List</h1>
+
+      <div className="grid-container">
+        {categories.map((category) => (
+          <div key={category.id} className="category-card">
+            <Link href={`/categories/${category.id}`}>
+ 
+                <div className="category-info">
+                  <h3 className="category-name">{category.name}</h3>
+                </div>
+
+            </Link>
+          </div>
+        ))}
+      </div>
+
+      {categories.length === 0 && <p>No categories found.</p>} */}
     </div>
   );
 };

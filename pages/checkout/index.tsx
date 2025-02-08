@@ -120,7 +120,7 @@ const CheckoutPage: React.FC = () => {
         setMessage("Thanh toán thành công!");
           localStorage.removeItem("cart"); 
           setTimeout(() => {
-            router.push(`/order-success?order_id=${orderId}`);
+            router.push(`/order-success`);
         }, 100);
       } else {
         setMessage("Thanh toán thất bại. Vui lòng thử lại.");

@@ -3,6 +3,7 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ProductList from "@/pages/productlist";
+import CategoryList from "@/pages/categorylist";
 // import ProductDetail from "@/components/product/[id]";
 
 // const geistSans = localFont({
@@ -22,6 +23,7 @@ export default function Home() {
       <Header />
       <ProductList />
       {/* <ProductDetail /> */}
+      <CategoryList/>
       <Footer />
     </>
   );

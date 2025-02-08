@@ -134,12 +134,17 @@ const ProductList: React.FC = () => {
               <img
                 src={product.image}
                 alt={product.name}
-                className="product-image"
+                className={`product-image ${
+                  product.quantity === 0 ? "out-of-stock" : ""
+                }`}
               />
             </Link>
             <div className="product-info">
               <h3 className="product-name">{product.name}</h3>
               <p className="product-price">{product.price} VND</p>
+              {product.quantity === 0 && (
+                <span className="out-of-stock-label">Hết hàng</span>
+              )}
             </div>
           </div>
         ))}

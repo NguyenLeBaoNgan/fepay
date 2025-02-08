@@ -1,5 +1,10 @@
 import React from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
@@ -15,38 +20,54 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   users,
 }) => (
   <div>
-    <h1 className="text-3xl font-semibold text-gray-800 mb-6">Dashboard</h1>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <>
+    <Header/>
+   <br/>
+    <CardTitle as="h1" className="text-3xl font-semibold mb-6"> {/* Removed text-gray-800 because we want to rely on themes */}
+      Dashboard
+    </CardTitle>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Using Shadcn Card for Stat Cards */}
       <StatCard title="Total Products" count={products.length} color="blue" />
       <StatCard title="Total Orders" count={orders.length} color="green" />
       <StatCard title="Total Users" count={users.length} color="purple" />
     </div>
-    <div className="mt-8">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+    {/* <div className="mt-8">
+      <CardTitle as="h2" className="text-2xl font-semibold mb-4"> 
         Product Distribution
-      </h2>
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={products.map((p) => ({ name: p.name, value: p.quantity }))}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            fill="#8884d8"
-          >
-            {products.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+      </CardTitle>
+      <Card>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={products.map((p) => ({
+                  name: p.name,
+                  value: p.quantity,
+                }))}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+              >
+                {products.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </div> */}
+    <br/>
+    <Footer/>
+    </>
   </div>
 );
 
@@ -55,12 +76,13 @@ const StatCard: React.FC<{ title: string; count: number; color: string }> = ({
   count,
   color,
 }) => (
-  <div
-    className={`bg-white shadow-lg rounded-lg p-6 border-t-4 border-${color}-500`}
-  >
-    <h3 className="text-xl font-medium text-gray-700">{title}</h3>
-    <p className={`text-2xl font-semibold text-${color}-600`}>{count}</p>
-  </div>
+  <Card>
+    <CardHeader>
+      <CardTitle>{title}</CardTitle>
+      <p className="text-2xl font-semibold">{count}</p> {/* Keep text style and rely on Shadcn theme */}
+      <Badge className={cn(`border-${color}-500 text-${color}-500`)}></Badge> {/* Added cn utility */}
+    </CardHeader>
+  </Card>
 );
 
 export default DashboardOverview;
