@@ -21,6 +21,7 @@ const AdminDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [accounts, setAccounts] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,11 +31,13 @@ const AdminDashboard: React.FC = () => {
           usersResponse,
           categoriesResponse,
           ordersResponse,
+          accountResponse,
         ] = await Promise.all([
           axiosClient.get("/api/products"),
           axiosClient.get("/api/getalluser"),
           axiosClient.get("/api/categories"),
           axiosClient.get("/api/orders"),
+          axiosClient.get("/api/accounts"),
         ]);
 
         setProducts(productsResponse.data);
@@ -43,6 +46,7 @@ const AdminDashboard: React.FC = () => {
         console.log("API Response:", categoriesResponse.data);
         setOrders(ordersResponse.data);
         console.log("order:", categoriesResponse.data);
+        setAccounts(accountResponse.data);
       } catch (error) {
         toast.error("Error loading data!");
       }
