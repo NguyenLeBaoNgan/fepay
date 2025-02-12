@@ -23,7 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTab, setSelectedTab }) => {
     { tab: "categories", label: "Category", icon: FaBook },
     { tab: "orders", label: "Orders", icon: FaClipboardList },
     { tab: "users", label: "Users", icon: FaUsers },
-    { tab: "account", label: "Accounts", icon: FaStore },
+    { tab: "accounts", label: "Accounts", icon: FaStore },
   ];
 
   return (

@@ -53,7 +53,7 @@ const Cart: React.FC = () => {
       }
     } catch (err) {
       console.error("Lỗi kiểm tra tồn kho:", err);
-      setError("Không thể kiểm tra tồn kho. Vui lòng thử lại.");
+      setError("Số lượng không đủ trong kho.");
     }
   };
 

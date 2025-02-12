@@ -11,6 +11,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import EditUser from "@/components/admin/user/Edit";
 import Orders from "@/components/admin/Orders";
+import Account from "@/components/admin/Account";
 
 const AdminDashboard: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -21,7 +22,8 @@ const AdminDashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [editingUser, setEditingUser] = useState<any | null>(null);
-  const [accounts, setAccounts] = useState<any | null>(null);
+  const [accounts, setAccounts] = useState<any[]>([]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -43,10 +45,11 @@ const AdminDashboard: React.FC = () => {
         setProducts(productsResponse.data);
         setUsers(usersResponse.data);
         setCategories(categoriesResponse.data);
-        console.log("API Response:", categoriesResponse.data);
+ 
         setOrders(ordersResponse.data);
         console.log("order:", categoriesResponse.data);
         setAccounts(accountResponse.data);
+        console.log("accountResponse:", accountResponse.data);
       } catch (error) {
         toast.error("Error loading data!");
       }
@@ -161,6 +164,7 @@ const AdminDashboard: React.FC = () => {
         {selectedTab === "users" && (
           <User users={users} onEdit={handleEditUser} onDelete={DeleteUser} />
         )}
+        {selectedTab === "accounts" && <Account accounts={accounts} />}
       </div>
 
       {/* Modal Edit Product */}
