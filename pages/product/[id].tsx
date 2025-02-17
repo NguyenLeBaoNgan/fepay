@@ -5,6 +5,9 @@ import axiosClient from "../../utils/axiosClient";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { toast } from "react-toastify";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter } from '@/components/ui/dialog';
+
+import { Button } from '@/components/ui/button';
 interface ProductDetail {
   id: number;
   name: string;
@@ -211,34 +214,43 @@ const ProductDetail: React.FC = () => {
         </div>
       </div>
       {showForm && (
-        <div className="add-to-cart-form fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Select Quantity</h2>
-            <input
-              type="number"
-              min="1"
-              max={product?.quantity}
-              value={quantity}
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="border rounded-lg px-4 py-2 mb-4 w-full"
-            />
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setShowForm(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddToCartConfirm}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-              >
-                Add to Cart
-              </button>
-            </div>
-          </div>
+  <Dialog open={showForm} onOpenChange={setShowForm}>
+    <DialogTrigger>
+      <div className="add-to-cart-form fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
+    </DialogTrigger>
+
+    <DialogContent className="bg-white p-6 rounded-lg shadow-lg">
+      <DialogHeader>
+        <h2 className="text-lg font-semibold mb-4">Select Quantity</h2>
+      </DialogHeader>
+      <input
+        type="number"
+        min="1"
+        max={product?.quantity}
+        value={quantity}
+        onChange={(e) => setQuantity(Number(e.target.value))}
+        className="border rounded-lg px-4 py-2 mb-4 w-full"
+      />
+      <DialogFooter>
+        <div className="flex justify-end gap-4">
+          <Button
+            variant="secondary"
+            onClick={() => setShowForm(false)}
+            className="px-4 py-2 bg-gray-300 rounded-lg"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddToCartConfirm}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          >
+            Add to Cart
+          </Button>
         </div>
-      )}
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+)}
       <Footer />
     </>
   );

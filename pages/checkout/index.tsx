@@ -18,8 +18,19 @@ const CheckoutPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [note, setNote] = useState<string>("");
+  // const token = Cookies.get("auth_token");
+  // const parsedToken = token ? JSON.parse(token) : null;
   const token = Cookies.get("auth_token");
-  const parsedToken = token ? JSON.parse(token) : null;
+
+let parsedToken = null;
+if (token) {
+  try {
+    parsedToken = JSON.parse(token);
+  } catch (error) {
+    console.error("Invalid token format", error);
+  }
+}
+
   const userId = parsedToken?.user_id;
   
   useEffect(() => { const urlParams = new URLSearchParams(window.location.search);
@@ -134,52 +145,6 @@ const CheckoutPage: React.FC = () => {
   };
   
 
-  // const handlePaymentSubmit = async () => {
-  //   if (isProcessing) return;
-  //   setIsProcessing(true);
-
-  //   if (!selectedMethod || !phone || !email || !address) {
-  //     setMessage("Please fill in all required fields.");
-  //     setIsProcessing(false);
-  //     return;
-  //   }
-
-  //   if (!orderId) {
-  //     setMessage("Order ID not found. Please try again.");
-  //     setIsProcessing(false);
-  //     return;
-  //   }
-
-  //   try {
-  //     const paymentResponse = await axiosClient.post("/api/payments", {
-  //       order_id: orderId,
-  //       method: selectedMethod,
-  //       payment_status: "pending",
-  //       transaction_id: "",
-  //       phone,
-  //       email,
-  //       address,
-  //       note,
-  //     });
-
-  //     if (paymentResponse.data.success) {
-  //       setMessage("Payment created successfully.");
-  //       if (selectedMethod === "bank_transfer") {
-  //         setShowDialog(true); // Show QR Code dialog
-  //       } else {
-  //         setMessage("Payment method not supported.");
-  //       }
-  //     } else {
-  //       setMessage("Failed to create payment. Please try again.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error creating payment:", error);
-  //     setMessage("Error occurred while processing payment.");
-  //   } finally {
-  //     setIsProcessing(false);
-  //   }
-  // };
-
   return (
     <>
       <Header />
@@ -203,7 +168,7 @@ const CheckoutPage: React.FC = () => {
         )}
 
         <div className="cart-summary mb-6">
-          <h2 className="text-2xl mb-4">Your Cart</h2>
+          {/* <h2 className="text-2xl mb-4">Your Cart</h2> */}
           {cartItems.length === 0 ? (
             <p>Your cart is empty.</p>
           ) : (
@@ -228,7 +193,7 @@ const CheckoutPage: React.FC = () => {
               </tbody>
             </table>
           )}
-          <p className="text-xl font-semibold mt-4">Total: {totalAmount} VND</p>
+          <p className="text-xl text-blue-700 font-semibold mt-4">Total: {totalAmount} VND</p>
         </div>
 
         <div className="payment-details mb-6">
@@ -270,7 +235,7 @@ const CheckoutPage: React.FC = () => {
             className="border p-2 rounded"
           >
             <option value="">Select a method</option>
-            <option value="bank_transfer">Bank Transfer</option>
+            <option value="bank_transfer">QR</option>
           </select>
         </div>
 

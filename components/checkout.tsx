@@ -35,10 +35,8 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    // Gửi thông tin checkout (có thể gọi API ở đây nếu cần)
     console.log("Submitting checkout data: ", formData);
-    
-    // Thực hiện chuyển hướng hoặc xử lý thanh toán ở đây
+
   };
 
   return (
