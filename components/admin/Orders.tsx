@@ -3,7 +3,7 @@ import DataTable from "./DataTable";
 import axiosClient from "@/utils/axiosClient";
 
 interface Order {
-  id: number;
+  id: string;
   user_id: string;
   total_amount: number;
   status: string;
@@ -13,8 +13,14 @@ interface Order {
   };
 }
 
-const OrdersPage = () => {
-  const [orders, setOrders] = useState<Order[]>([]); 
+interface OrdersProps{
+  orders: Order[];
+  // onEdit?: (id: string) => void;
+  // onDelete?: (id: string) => void;
+}
+
+const OrdersPage:React.FC<OrdersProps> = ({orders}) => {
+  const [orderslist, setOrders] = useState<Order[]>([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); 
@@ -47,11 +53,11 @@ const OrdersPage = () => {
   ];
 
   
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string) => {
     console.log(`Edit order with id: ${id}`);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     console.log(`Delete order with id: ${id}`);
 
   };
@@ -78,8 +84,16 @@ const OrdersPage = () => {
   };
 
 
+  // const modifiedData = orders.map(order => {
+  //   columns.forEach(col => {
+  //     if (col.key.includes('.')) {
+  //       modifiedOrder[col.key] = getValue(order, col.key);
+  //     }
+  //   });
+  //   return modifiedOrder;
+  // });
   const modifiedData = orders.map(order => {
-    const modifiedOrder = { ...order };
+    const modifiedOrder: { [key: string]: any } = { ...order };
     columns.forEach(col => {
       if (col.key.includes('.')) {
         modifiedOrder[col.key] = getValue(order, col.key);
@@ -87,7 +101,7 @@ const OrdersPage = () => {
     });
     return modifiedOrder;
   });
-
+  
   return (
     <div>
       <DataTable

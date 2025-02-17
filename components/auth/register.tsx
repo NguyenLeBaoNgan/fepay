@@ -16,7 +16,13 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
-  const { register } = useAuth()
+  const auth = useAuth();
+if (!auth) {
+  throw new Error("AuthContext is not available");
+}
+const { register } = auth;
+
+  // const { register } = useAuth()
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',

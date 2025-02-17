@@ -21,7 +21,13 @@ interface LoginFormData {
 }
 
 export default function LoginPage() {
-  const { login, setIsLoggedIn } = useAuth();
+  const auth = useAuth();
+if (!auth) {
+  throw new Error("AuthContext is not available");
+}
+const { login, setIsLoggedIn } = auth;
+
+  // const { login, setIsLoggedIn } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -152,7 +158,7 @@ export default function LoginPage() {
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-gray-500">
-            Don't have an account?{" "}
+            Do not have an account?{" "}
             <a href="/register" className="text-primary hover:underline">
               Create an account
             </a>

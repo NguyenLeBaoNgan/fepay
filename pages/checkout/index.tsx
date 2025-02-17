@@ -18,8 +18,10 @@ const CheckoutPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [address, setAddress] = useState<string>("");
   const [note, setNote] = useState<string>("");
- const token = Cookies.get("auth_token");
-  const userId = token?.user_id;
+  const token = Cookies.get("auth_token");
+  const parsedToken = token ? JSON.parse(token) : null;
+  const userId = parsedToken?.user_id;
+  
   useEffect(() => { const urlParams = new URLSearchParams(window.location.search);
     const orderIdFromUrl = urlParams.get('order_id');
     const storedCart = localStorage.getItem("cart");

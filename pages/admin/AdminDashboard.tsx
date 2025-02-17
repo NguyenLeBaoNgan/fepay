@@ -128,12 +128,11 @@ const AdminDashboard: React.FC = () => {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error updating product:", error);
-      if (error.response) {
+      if ((error as any).response) {
         toast.error(
-          `Error updating product: ${
-            error.response.data.message || "Unknown error"
-          }`
+          `Error updating product: ${(error as any).response?.data?.message || "Unknown error"}`
         );
+        
       } else {
         toast.error("Error updating product!");
       }
@@ -205,7 +204,7 @@ const AdminDashboard: React.FC = () => {
                   <input
                     type="file"
                     onChange={(e) => {
-                      const file = e.target.files[0];
+                      const file = e.target.files ? e.target.files[0] : null;
                       if (file) {
                         setEditingProduct({
                           ...editingProduct,

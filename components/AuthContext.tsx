@@ -7,12 +7,19 @@ interface AuthContextType {
   setIsLoggedIn: (status: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<any>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Thêm state isLoggedIn
 
@@ -22,8 +29,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoggedIn(true); // Đánh dấu trạng thái đăng nhập thành công
   };
 
-  const register = async (name: string, email: string, password: string, password_confirmation: string) => {
-    const userData = await registerUser(name, email, password, password_confirmation);
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ) => {
+    const userData = await registerUser(
+      name,
+      email,
+      password,
+      password_confirmation
+    );
     setUser(userData);
     setIsLoggedIn(true); // Đánh dấu trạng thái đăng ký thành công
   };
@@ -35,7 +52,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn, setIsLoggedIn, login, logout, register }}>
+    <AuthContext.Provider
+      value={{ user, isLoggedIn, setIsLoggedIn, login, logout, register }}
+    >
       {children}
     </AuthContext.Provider>
   );

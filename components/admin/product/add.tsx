@@ -63,10 +63,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    if (e.target.files && e.target.files.length > 0) {
       setNewProduct((prev) => ({
         ...prev,
-        image: e.target.files[0],
+        image: e.target.files ? e.target.files[0] : "",
       }));
     }
   };
@@ -110,7 +110,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       }
 
       // Log FormData để kiểm tra
-      for (let pair of formData.entries()) {
+      for (const pair of formData.entries()) {
         console.log(pair[0] + ": " + pair[1]);
       }
 

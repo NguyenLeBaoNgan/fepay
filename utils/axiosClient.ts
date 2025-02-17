@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosClient = axios.create({
-    baseURL: "http://127.0.0.1:8000",
+    baseURL: "http://api.nganbao.id.vn",
   // baseURL: "https://1b00-58-186-47-62.ngrok-free.app",
   withCredentials: true,
 });

@@ -23,14 +23,14 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     <>
     <Header/>
    <br/>
-    <CardTitle as="h1" className="text-3xl font-semibold mb-6"> {/* Removed text-gray-800 because we want to rely on themes */}
+    <CardTitle className="text-3xl font-semibold mb-6"> {/* Removed text-gray-800 because we want to rely on themes */}
       Dashboard
     </CardTitle>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Using Shadcn Card for Stat Cards */}
-      <StatCard title="Total Products" count={products.length} color="blue" />
-      <StatCard title="Total Orders" count={orders.length} color="green" />
-      <StatCard title="Total Users" count={users.length} color="purple" />
+      <StatCard title="Total Products" count={products?.length} color="blue" />
+      <StatCard title="Total Orders" count={orders?.length} color="green" />
+      <StatCard title="Total Users" count={users?.length} color="purple" />
     </div>
     {/* <div className="mt-8">
       <CardTitle as="h2" className="text-2xl font-semibold mb-4"> 

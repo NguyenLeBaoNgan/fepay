@@ -7,22 +7,27 @@ interface User {
   email: string;
   roles: string[];
   status: string; 
+  render?: (row: any) =>React.ReactNode;
 }
 interface UserProps {
   users: User[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
-
+    
 const User: React.FC<UserProps> = ({ users, onEdit, onDelete }) => {
+  const modifiedUsers = users.map(user => ({
+    ...user,
+    roles: user.roles.join(', '), 
+  }));
   return (
     <DataTable
       title="Users"
-      data={users}
+      data={modifiedUsers}
       columns={[
         { key: 'name', label: 'User Name' },
         { key: 'email', label: 'Email' },
-        { key: 'roles', label: 'Roles', render: (row) => row.roles.join(', ') },
+        { key: 'roles', label: 'Roles' },
         { key: 'status', label: 'Status' }, 
       ]}
       onEdit={onEdit}

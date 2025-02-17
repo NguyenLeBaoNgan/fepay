@@ -10,6 +10,7 @@ interface DataTableProps {
   columns: { key: string; label: string }[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onRowClick?: (order: any) => void;
 }
 
 const DataTable: React.FC<DataTableProps> = ({ title, data, columns, onEdit, onDelete }) => {

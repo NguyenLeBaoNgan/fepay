@@ -85,8 +85,8 @@ interface Product {
 
 interface ProductProps {
   products: Product[];
-  onEdit: (id: number) => void;
-  onDelete: (id: number) => void;
+  onEdit: (id: string ) => void;
+  onDelete: (id: string) => void;
 }
 
 const Product: React.FC<ProductProps> = ({ products, onEdit, onDelete }) => {
