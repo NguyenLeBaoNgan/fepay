@@ -2,8 +2,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const axiosClient = axios.create({
-    // baseURL: "https://api.nganbao.id.vn",
-  baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://api.nganbao.id.vn",
+  // baseURL: "http://127.0.0.1:8000/", 
   withCredentials: true,
 });
 
