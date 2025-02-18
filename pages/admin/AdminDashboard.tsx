@@ -12,6 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import EditUser from "@/components/admin/user/Edit";
 import Orders from "@/components/admin/Orders";
 import Account from "@/components/admin/Account";
+import TransactionPage from "@/components/admin/Transaction";
+import Transaction from "@/components/admin/Transaction";
 
 const AdminDashboard: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -164,6 +166,7 @@ const AdminDashboard: React.FC = () => {
           <User users={users} onEdit={handleEditUser} onDelete={DeleteUser} />
         )}
         {selectedTab === "accounts" && <Account accounts={accounts} />}
+        {selectedTab === "transactions" && <Transaction/>}
       </div>
 
       {/* Modal Edit Product */}

@@ -128,13 +128,13 @@ if (token) {
         gateway: "MBBank",
         accountNumber: "168820029999",
       });
-
+      console.log("Webhook response:", response);
       if (response.status === 200) {
         setMessage("Thanh toán thành công!");
           localStorage.removeItem("cart"); 
           setTimeout(() => {
             router.push(`/order-success`);
-        }, 100);
+        }, 1000);
       } else {
         setMessage("Thanh toán thất bại. Vui lòng thử lại.");
       }

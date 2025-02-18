@@ -7,6 +7,7 @@ import {
   FaBook,
   FaBehance,
   FaStore,
+  FaBitcoin,
 } from "react-icons/fa";
 import { cn } from "@/lib/utils"; // Assuming you have a utils file with cn (classnames) function
 import { Button } from "@/components/ui/button"; // Assuming you have Shadcn button component
@@ -24,6 +25,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTab, setSelectedTab }) => {
     { tab: "orders", label: "Orders", icon: FaClipboardList },
     { tab: "users", label: "Users", icon: FaUsers },
     { tab: "accounts", label: "Accounts", icon: FaStore },
+    { tab: "transactions", label: "Transactions", icon: FaBitcoin },
   ];
 
   return (
