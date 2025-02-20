@@ -1,128 +1,158 @@
 import React, { useEffect, useState } from "react";
-import DataTable from "./DataTable"; 
+import DataTable from "./DataTable";
 import axiosClient from "@/utils/axiosClient";
+import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+
+interface OrderItem {
+  id: string;
+  product_name: string;
+  quantity: number;
+  price: string;
+  total: string;
+}
 
 interface Order {
   id: string;
-  user_id: string;
+  user: string;
   total_amount: number;
-  status: string;
+  status: "pending" | "unpaid" | "cancelled";
   created_at: string;
-  user: {
-    name: string;
-  };
+  items: OrderItem[];
 }
 
-interface OrdersProps{
-  orders: Order[];
-  // onEdit?: (id: string) => void;
-  // onDelete?: (id: string) => void;
-}
-
-const OrdersPage:React.FC<OrdersProps> = ({orders}) => {
-  const [orderslist, setOrders] = useState<Order[]>([]); 
+const OrdersPage: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); 
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosClient.get<Order[]>("/api/orders");
-        if (response.status !== 200) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        setOrders(response.data);
-      } catch (error: any) {
-        setError(error.message || "Có lỗi xảy ra khi lấy dữ liệu đơn hàng.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrders();
   }, []);
 
-  const columns = [
-    { key: "id", label: "ID" },
-    { key: "user.name", label: "Tên Khách Hàng" }, 
-    { key: "total_amount", label: "Tổng Tiền" },
-    { key: "status", label: "Trạng Thái" },
-    { key: "created_at", label: "Ngày Tạo" },
-  ];
-
-  
-  const handleEdit = (id: string) => {
-    console.log(`Edit order with id: ${id}`);
-  };
-
-  const handleDelete = (id: string) => {
-    console.log(`Delete order with id: ${id}`);
-
-  };
-
-  const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order); 
-  };
-
-  if (loading) {
-    return <div>Đang tải dữ liệu...</div>;
-  }
-
-  if (error) {
-    return <div>Lỗi: {error}</div>;
-  }
-
-
-  const getValue = (obj: any, path: string) => {
+  const fetchOrders = async () => {
     try {
-      return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-    } catch (e) {
-      return ''; 
+      setLoading(true);
+      const response = await axiosClient.get<Order[]>("/api/orders");
+      if (response.status !== 200) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setOrders(response.data);
+    } catch (error: any) {
+      setError(error.message || "Có lỗi xảy ra khi lấy dữ liệu đơn hàng.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleEditStatus = async (id: string, newStatus: Order["status"]) => {
+    try {
+      await axiosClient.put(`/api/orders/${id}`, { status: newStatus });
+      setOrders(prevOrders =>
+        prevOrders.map(order =>
+          order.id === id ? { ...order, status: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái:", error);
+    }
+  };
 
-  // const modifiedData = orders.map(order => {
-  //   columns.forEach(col => {
-  //     if (col.key.includes('.')) {
-  //       modifiedOrder[col.key] = getValue(order, col.key);
-  //     }
-  //   });
-  //   return modifiedOrder;
-  // });
-  const modifiedData = orders.map(order => {
-    const modifiedOrder: { [key: string]: any } = { ...order };
-    columns.forEach(col => {
-      if (col.key.includes('.')) {
-        modifiedOrder[col.key] = getValue(order, col.key);
-      }
-    });
-    return modifiedOrder;
-  });
-  
+  const handleDelete = async (id: string) => {
+    try {
+      await axiosClient.delete(`/api/orders/${id}`);
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== id));
+    } catch (error) {
+      console.error("Lỗi khi xoá đơn hàng:", error);
+    }
+  };
+
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setShowDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowDialog(false);
+    setSelectedOrder(null);
+  };
+
+  if (loading) return <div>Đang tải dữ liệu...</div>;
+  if (error) return <div>Lỗi: {error}</div>;
+
+  const columns = [
+    { key: "id", label: "ID" },
+    { key: "user", label: "Tên Khách Hàng" },
+    { key: "total_amount", label: "Tổng Tiền" },
+    { key: "status", label: "Trạng Thái" },
+    { key: "created_at", label: "Ngày Tạo" },
+    { key: "actions", label: "Thao Tác" },
+  ];
+
+  const modifiedData = orders.map(order => ({
+    id: order.id,
+    user: order.user || "Không xác định",
+    total_amount: order.total_amount,
+    status: (
+      <select
+        value={order.status}
+        onChange={(e) => handleEditStatus(order.id, e.target.value as Order["status"])}
+        className="border p-1 rounded"
+      >
+        <option value="paid">Paid</option>
+        <option value="unpaid">Unpaid</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    ),
+    created_at: order.created_at,
+    actions: (
+      <div className="flex gap-4">
+        <button onClick={() => handleViewDetails(order)} className="text-blue-500">
+          <FaEye size={15} />
+        </button>
+        <button onClick={() => handleDelete(order.id)} className="text-red-500">
+          <FaTrash size={15} />
+        </button>
+      </div>
+    ),
+  }));
+
   return (
     <div>
-      <DataTable
-        title="Danh Sách Đơn Hàng"
-        data={modifiedData}
-        columns={columns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onRowClick={handleViewDetails} 
-      />
+      <DataTable title="Danh Sách Đơn Hàng" data={modifiedData} columns={columns} />
 
+      {showDialog && selectedOrder && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">Chi Tiết Đơn Hàng</h3>
+            <p><strong>Tổng Tiền:</strong> {selectedOrder.total_amount}</p>
+            <p><strong>Trạng Thái:</strong> {selectedOrder.status}</p>
+            <p><strong>Ngày Tạo:</strong> {selectedOrder.created_at}</p>
 
-      {selectedOrder && (
-        <div className="mt-8 p-4 border rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Chi Tiết Đơn Hàng</h3>
-          <p><strong>ID:</strong> {selectedOrder.id}</p>
-          <p><strong>Tên Khách Hàng:</strong> {selectedOrder.user.name}</p>
-          <p><strong>Tổng Tiền:</strong> {selectedOrder.total_amount}</p>
-          <p><strong>Trạng Thái:</strong> {selectedOrder.status}</p>
-          <p><strong>Ngày Tạo:</strong> {selectedOrder.created_at}</p>
+            <h4 className="text-lg font-semibold mt-4">Danh sách sản phẩm:</h4>
+            <ul className="mt-2">
+              {selectedOrder.items.length > 0 ? (
+                selectedOrder.items.map(item => (
+                  <li key={item.id} className="border-b py-2">
+                    <p><strong>Tên Sản Phẩm:</strong> {item.product_name || "Không xác định"}</p>
+                    <p><strong>Số Lượng:</strong> {item.quantity}</p>
+                    <p><strong>Giá:</strong> {item.price}</p>
+                    <p><strong>Tổng:</strong> {item.total}</p>
+                  </li>
+                ))
+              ) : (
+                <p className="text-gray-500">Không có sản phẩm nào.</p>
+              )}
+            </ul>
 
+            <button
+              onClick={handleCloseDialog}
+              className="mt-4 bg-red-500 text-white px-4 py-2 rounded-md"
+            >
+              Đóng
+            </button>
+          </div>
         </div>
       )}
     </div>

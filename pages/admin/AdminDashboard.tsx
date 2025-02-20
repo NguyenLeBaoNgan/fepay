@@ -14,6 +14,7 @@ import Orders from "@/components/admin/Orders";
 import Account from "@/components/admin/Account";
 import TransactionPage from "@/components/admin/Transaction";
 import Transaction from "@/components/admin/Transaction";
+import AuditLogTable from "@/components/admin/AuditLog";
 
 const AdminDashboard: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -160,13 +161,14 @@ const AdminDashboard: React.FC = () => {
             onDelete={handleDelete}
           />
         )}
-        {selectedTab === "categories" && <Category categories={categories} />}
-        {selectedTab === "orders" && <Orders orders={orders} />}
+        {selectedTab === "categories" && <Category  />}
+        {selectedTab === "orders" && <Orders  />}
         {selectedTab === "users" && (
           <User users={users} onEdit={handleEditUser} onDelete={DeleteUser} />
         )}
         {selectedTab === "accounts" && <Account accounts={accounts} />}
         {selectedTab === "transactions" && <Transaction/>}
+        {selectedTab === "auditlog" && <AuditLogTable/>}
       </div>
 
       {/* Modal Edit Product */}

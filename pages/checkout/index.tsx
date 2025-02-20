@@ -4,6 +4,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import Cookies from "js-cookie";
 import router from "next/router";
+import PaymentListener from "@/components/PaymentListener";
 
 const CheckoutPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -21,20 +22,21 @@ const CheckoutPage: React.FC = () => {
   // const token = Cookies.get("auth_token");
   // const parsedToken = token ? JSON.parse(token) : null;
   const token = Cookies.get("auth_token");
-
-let parsedToken = null;
-if (token) {
-  try {
-    parsedToken = JSON.parse(token);
-  } catch (error) {
-    console.error("Invalid token format", error);
+  const [paymentId, setPaymentId] = useState<string | null>(null); 
+  let parsedToken = null;
+  if (token) {
+    try {
+      parsedToken = JSON.parse(token);
+    } catch (error) {
+      console.error("Invalid token format", error);
+    }
   }
-}
 
   const userId = parsedToken?.user_id;
-  
-  useEffect(() => { const urlParams = new URLSearchParams(window.location.search);
-    const orderIdFromUrl = urlParams.get('order_id');
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderIdFromUrl = urlParams.get("order_id");
     const storedCart = localStorage.getItem("cart");
     if (storedCart) {
       const cartData = JSON.parse(storedCart);
@@ -53,7 +55,6 @@ if (token) {
       setMessage("Order already created. Proceed to payment.");
       return; // Nếu đã có orderId, không tạo thêm đơn hàng nữa.
     }
-  
     try {
       const response = await axiosClient.post("/api/orders", {
         items: cartItems,
@@ -67,24 +68,23 @@ if (token) {
       setMessage("Failed to create order. Please try again.");
     }
   };
-  
-  
+
   const handlePaymentSubmit = async () => {
     if (isProcessing) return;
     setIsProcessing(true);
-  
+
     if (!selectedMethod || !phone || !email || !address) {
       setMessage("Please fill in all required fields.");
       setIsProcessing(false);
       return;
     }
-  
+
     if (!orderId) {
       setMessage("Order ID not found. Please try again.");
       setIsProcessing(false);
       return;
     }
-  
+
     try {
       const paymentResponse = await axiosClient.post("/api/payments", {
         order_id: orderId, // Sử dụng order_id đã tạo
@@ -96,18 +96,17 @@ if (token) {
         address,
         note,
       });
-  
+
       if (paymentResponse.data.success) {
+        setPaymentId(paymentResponse.data.payment_id); 
         if (selectedMethod === "bank_transfer") {
           setShowDialog(true); // Hiển thị QR Code
-  
         } else {
           setMessage("Payment method not supported.");
         }
         if (paymentResponse.data.transaction_id) {
           await handleWebhookResponse(paymentResponse.data.transaction_id); // Cập nhật webhook với transaction_id
         }
-
       } else {
         setMessage("Failed to create payment. Please try again.");
       }
@@ -118,10 +117,10 @@ if (token) {
       setIsProcessing(false);
     }
   };
-  
+
   const handleWebhookResponse = async (transactionId: string) => {
     try {
-      const response = await axiosClient.post("/api/sepay/webhook", {
+      const response = await axiosClient.post("/api/sepay/hook", {
         transaction_id: transactionId,
         order_id: orderId,
         transferType: selectedMethod === "bank_transfer" ? "in" : "out",
@@ -131,9 +130,9 @@ if (token) {
       console.log("Webhook response:", response);
       if (response.status === 200) {
         setMessage("Thanh toán thành công!");
-          localStorage.removeItem("cart"); 
-          setTimeout(() => {
-            router.push(`/order-success`);
+        localStorage.removeItem("cart");
+        setTimeout(() => {
+          router.push(`/order-success`);
         }, 1000);
       } else {
         setMessage("Thanh toán thất bại. Vui lòng thử lại.");
@@ -143,14 +142,13 @@ if (token) {
       setMessage("Đã xảy ra lỗi khi xử lý webhook.");
     }
   };
-  
 
   return (
     <>
       <Header />
       <div className="checkout-container container mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6">Checkout</h1>
-
+        <PaymentListener />
         {message && (
           <div
             className={`${
@@ -193,7 +191,9 @@ if (token) {
               </tbody>
             </table>
           )}
-          <p className="text-xl text-blue-700 font-semibold mt-4">Total: {totalAmount} VND</p>
+          <p className="text-xl text-blue-700 font-semibold mt-4">
+            Total: {totalAmount} VND
+          </p>
         </div>
 
         <div className="payment-details mb-6">
@@ -268,3 +268,7 @@ if (token) {
 };
 
 export default CheckoutPage;
+function usePaymentListener(orderId: string | null, paymentId: string | null) {
+  throw new Error("Function not implemented.");
+}
+

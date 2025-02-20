@@ -26,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTab, setSelectedTab }) => {
     { tab: "users", label: "Users", icon: FaUsers },
     { tab: "accounts", label: "Accounts", icon: FaStore },
     { tab: "transactions", label: "Transactions", icon: FaBitcoin },
+    { tab: "auditlog", label: "AudiuLog", icon: FaBehance },
   ];
 
   return (

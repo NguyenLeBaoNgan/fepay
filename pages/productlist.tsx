@@ -122,7 +122,7 @@ const ProductList: React.FC = () => {
   const filteredProducts = products.filter((product) => {
     let match = true;
     if (filters.category) {
-      const productCategory = product.category.name.toLowerCase().trim();
+      const productCategory = product.category?.name?.toLowerCase().trim() || "";
       const filterCategory = filters.category.toLowerCase().trim();
       if (productCategory !== filterCategory) {
         match = false;

@@ -11,19 +11,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
+import { toast } from "react-toastify";
 
 interface Category {
   id: string;
   name: string;
 }
 
-interface CategoryProps {
-  categories: Category[];
-  // onEdit: (id: string) => void;
-  // onDelete: (id: string) => void;
-}
-const Category: React.FC<CategoryProps> = ({ categories }) => {
-  const [CategoryList, setCategories] = useState<Category[]>([]);
+const Category: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
@@ -40,7 +36,7 @@ const Category: React.FC<CategoryProps> = ({ categories }) => {
       const response = await axiosClient.get<Category[]>("/api/categories");
       setCategories(response.data);
     } catch (err) {
-      setError("Failed to fetch categories");
+      setError("Không thể lấy danh sách thể loại");
     } finally {
       setLoading(false);
     }
@@ -55,103 +51,113 @@ const Category: React.FC<CategoryProps> = ({ categories }) => {
       setEditCategory(response.data);
       setNewName(response.data.name);
     } catch (err) {
-      console.error("Lỗi: Không thể lấy dữ liệu category!", err);
+      toast.error("Lỗi: Không thể lấy dữ liệu category!");
     }
   };
 
-  const handleUpdate = async () => {
-    if (!editCategory || !editCategory.id) return;
+  const handleUpdate = async (id: string) => {
+    if (!editCategory) return;
     try {
-      await axiosClient.put(`/api/categories/${editCategory.id}`, {
+      await axiosClient.post(`/api/categories/${id}`, {
         name: newName,
       });
       setEditCategory(null);
       setNewName("");
       fetchCategories();
+      toast.success("Cập nhật thành công!");
     } catch (err) {
-      console.error("Failed to update category", err);
+      toast.error("Lỗi khi cập nhật!");
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await axiosClient.delete(`/api/categories/${id}`);
-      setCategories(categories.filter((cat) => cat.id !== id));
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      toast.success("Xóa thể loại thành công!");
     } catch (err) {
-      console.error("Failed to delete category", err);
+      toast.error("Lỗi khi xóa thể loại!");
     }
   };
+
   const handleAddCategory = async () => {
-    if (!newCategoryName) return;
+    if (!newCategoryName.trim()) return;
     try {
       await axiosClient.post("/api/categories", { name: newCategoryName });
       setNewCategoryName("");
       setIsAddDialogOpen(false);
       fetchCategories();
+      toast.success("Thêm thể loại thành công!");
     } catch (err) {
-      console.error("Failed to add category", err);
+      toast.error("Lỗi khi thêm thể loại!");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <p>Đang tải...</p>;
+  if (error) return <p>Lỗi: {error}</p>;
 
   return (
     <div className="max-w-4xl mx-auto mt-8">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-        Category List
-      </h1>
-      <Button onClick={() => setIsAddDialogOpen(true)} className="mb-4">
-        Add Category
-      </Button>
-
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+          Danh sách Thể loại
+        </h1>
+        <Button onClick={() => setIsAddDialogOpen(true)} className="mb-4">
+          Thêm Thể loại
+        </Button>
+      </div>
       <Card className="p-4 shadow-lg">
         <DataTable
-          title="Categories"
+          title="Thể loại"
           data={categories}
-          columns={[{ key: "name", label: "Category Name" }]}
+          columns={[{ key: "name", label: "Tên Thể loại" }]}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       </Card>
+
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Category </DialogTitle>
+            <DialogTitle>Thêm Thể loại</DialogTitle>
           </DialogHeader>
           <Input
             type="text"
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
-            placeholder="Nhập thể loại mới"
+            placeholder="Nhập tên thể loại mới"
           />
           <DialogFooter>
             <Button onClick={handleAddCategory} variant="secondary">
-              Add
+              Thêm
             </Button>
             <Button onClick={() => setIsAddDialogOpen(false)} variant="default">
-              Cancel
+              Hủy
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       <Dialog open={!!editCategory} onOpenChange={() => setEditCategory(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle>Chỉnh sửa Thể loại</DialogTitle>
           </DialogHeader>
           <Input
             type="text"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            placeholder="Enter new category name"
+            placeholder="Nhập tên mới"
           />
           <DialogFooter>
-            <Button onClick={handleUpdate} variant="secondary">
-              Save
+            <Button
+              onClick={() => handleUpdate(editCategory?.id || "")}
+              variant="secondary"
+            >
+              Lưu
             </Button>
             <Button onClick={() => setEditCategory(null)} variant="default">
-              Cancel
+              Hủy
             </Button>
           </DialogFooter>
         </DialogContent>
