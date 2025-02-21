@@ -22,7 +22,7 @@ const CheckoutPage: React.FC = () => {
   // const token = Cookies.get("auth_token");
   // const parsedToken = token ? JSON.parse(token) : null;
   const token = Cookies.get("auth_token");
-  const [paymentId, setPaymentId] = useState<string | null>(null); 
+  const [paymentId, setPaymentId] = useState<string | null>(null);
   let parsedToken = null;
   if (token) {
     try {
@@ -98,14 +98,24 @@ const CheckoutPage: React.FC = () => {
       });
 
       if (paymentResponse.data.success) {
-        setPaymentId(paymentResponse.data.payment_id); 
+        console.log("Payment response:", paymentResponse.data);
+        setPaymentId(paymentResponse.data.payment_id);
         if (selectedMethod === "bank_transfer") {
           setShowDialog(true); // Hiển thị QR Code
         } else {
           setMessage("Payment method not supported.");
         }
+        console.log(
+          "Kiểm tra transaction_id:",
+          paymentResponse.data.transaction_id
+        );
+
         if (paymentResponse.data.transaction_id) {
-          await handleWebhookResponse(paymentResponse.data.transaction_id); // Cập nhật webhook với transaction_id
+          console.log(
+            "Transaction ID nhận được:",
+            paymentResponse.data.transaction_id
+          );
+          handleWebhookResponse(paymentResponse.data.transaction_id); // Cập nhật webhook với transaction_id
         }
       } else {
         setMessage("Failed to create payment. Please try again.");
@@ -119,6 +129,8 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handleWebhookResponse = async (transactionId: string) => {
+    console.log("Gửi request webhook với transactionId:", transactionId);
+
     try {
       const response = await axiosClient.post("/api/sepay/hook", {
         transaction_id: transactionId,
@@ -271,4 +283,3 @@ export default CheckoutPage;
 function usePaymentListener(orderId: string | null, paymentId: string | null) {
   throw new Error("Function not implemented.");
 }
-

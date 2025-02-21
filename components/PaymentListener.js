@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import Pusher from "pusher-js";
+import { useRouter } from "next/router";
 
 const PaymentListener = () => {
   const [message, setMessage] = useState("Đang chờ thanh toán...");
-
+  const router = useRouter();
   useEffect(() => {
     Pusher.logToConsole = true;
 
@@ -30,6 +31,12 @@ const PaymentListener = () => {
     channel.bind("payment.updated", (data) => { 
         console.log("Nhận event từ Pusher:", data);
         setMessage(`Thanh toán: ${data.status}`);
+
+        if(data.status === 'completed') {
+            console.log('Thanh toán thành công!');
+            localStorage.removeItem('cart');
+            router.push('/order-success');
+        }
       });
       
 
@@ -38,7 +45,7 @@ const PaymentListener = () => {
       channel.unbind_all();
       channel.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   return (
     <div>
