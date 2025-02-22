@@ -5,9 +5,15 @@ import axiosClient from "../../utils/axiosClient";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { toast } from "react-toastify";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter } from '@/components/ui/dialog';
-
-import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 interface ProductDetail {
   id: number;
   name: string;
@@ -159,98 +165,103 @@ const ProductDetail: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="product-detail container mx-auto p-6">
-        <div className="flex flex-col lg:flex-row items-center justify-center bg-white rounded-lg shadow-xl p-8">
-          <div className="product-image-container flex-shrink-0">
-            <img
+      <div className="container mx-auto p-8">
+        <motion.div
+          className="flex flex-col lg:flex-row items-center bg-white rounded-3xl shadow-xl p-12 transition-all duration-300 hover:shadow-2xl"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="product-image-container flex-shrink-0 w-full lg:w-1/3 overflow-hidden rounded-2xl shadow-lg">
+            <motion.img
               src={product.image}
               alt={product.name}
-              className="product-image rounded-xl shadow-lg transition-transform transform hover:scale-105"
+              className="w-full h-auto object-cover rounded-2xl transform transition-all duration-500 hover:scale-110"
+              whileHover={{ scale: 1.1 }}
             />
           </div>
 
-          <div className="product-info flex flex-col lg:ml-12 mt-4 lg:mt-0 w-full">
-            <div className="category-banner mt-3 p-3 w-max">
-              <span className="category-text text-lg font-semibold">
-                {Array.isArray(product.category) && product.category.length > 0
-                  ? product.category.map((cat, index) => (
-                      <button
-                        key={index}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-6 rounded-full shadow-md transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50 mr-2 mt-2"
-                      >
-                        {cat.name}
-                      </button>
-                    ))
-                  : "No Categories"}
-              </span>
+          <div className="product-info flex flex-col lg:ml-14 mt-6 lg:mt-0 w-full lg:w-2/3">
+            <div className="category-banner flex flex-wrap gap-3">
+              {Array.isArray(product.category) &&
+              product.category.length > 0 ? (
+                product.category.map((cat, index) => (
+                  <motion.button
+                    key={index}
+                    className="bg-gradient-to-r from-indigo-500 to-purple-700 text-white py-2 px-6 rounded-full shadow-md transform transition-all duration-300 hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50"
+                    whileHover={{ scale: 1.1 }}
+                  >
+                    {cat.name}
+                  </motion.button>
+                ))
+              ) : (
+                <span className="text-gray-500">No Categories</span>
+              )}
             </div>
-
-            <h3 className="product-title text-4xl font-bold text-gray-900 mt-6">
+            <h3 className="text-5xl font-extrabold text-gray-900 mt-6">
               {product.name}
             </h3>
-
-            <p className="product-description text-gray-600 mt-4 leading-relaxed">
+            <p className="text-gray-600 mt-5 text-lg leading-relaxed">
               {product.description}
             </p>
-
-            <div className="product-price-quantity mt-6">
-              <p className="text-2xl font-semibold text-gray-800">
+            <div className="mt-6 bg-gray-100 p-5 rounded-2xl shadow-sm flex justify-between items-center">
+              <p className="text-3xl font-bold text-gray-800">
                 <strong>Price:</strong> {product.price} VND
               </p>
-              <p className="text-lg text-gray-500">
-                <strong>Quantity:</strong> {product.quantity} items available
+              <p className="text-lg text-gray-600">
+                <strong>Quantity:</strong> {product.quantity} available
               </p>
             </div>
-
-            <div className="action-buttons mt-8">
-              <button
+            <div className="mt-8 flex justify-start">
+              <motion.button
                 onClick={handleAddToCart}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-8 rounded-full hover:bg-blue-800 transition-all duration-300 shadow-xl"
+                className="bg-gradient-to-r from-blue-500 to-blue-700 text-white text-lg py-4 px-10 rounded-full hover:scale-110 transform transition-all duration-300 shadow-lg hover:shadow-xl"
+                whileHover={{ scale: 1.1 }}
               >
                 Add to Cart
-              </button>
+              </motion.button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
       {showForm && (
-  <Dialog open={showForm} onOpenChange={setShowForm}>
-    <DialogTrigger>
-      <div className="add-to-cart-form fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
-    </DialogTrigger>
+        <Dialog open={showForm} onOpenChange={setShowForm}>
+          <DialogTrigger>
+            <div className="add-to-cart-form fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
+          </DialogTrigger>
 
-    <DialogContent className="bg-white p-6 rounded-lg shadow-lg">
-      <DialogHeader>
-        <h2 className="text-lg font-semibold mb-4">Select Quantity</h2>
-      </DialogHeader>
-      <input
-        type="number"
-        min="1"
-        max={product?.quantity}
-        value={quantity}
-        onChange={(e) => setQuantity(Number(e.target.value))}
-        className="border rounded-lg px-4 py-2 mb-4 w-full"
-      />
-      <DialogFooter>
-        <div className="flex justify-end gap-4">
-          <Button
-            variant="secondary"
-            onClick={() => setShowForm(false)}
-            className="px-4 py-2 bg-gray-300 rounded-lg"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAddToCartConfirm}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          >
-            Add to Cart
-          </Button>
-        </div>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-)}
+          <DialogContent className="bg-white p-6 rounded-lg shadow-lg">
+            <DialogHeader>
+              <h2 className="text-lg font-semibold mb-4">Select Quantity</h2>
+            </DialogHeader>
+            <input
+              type="number"
+              min="1"
+              max={product?.quantity}
+              value={quantity}
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="border rounded-lg px-4 py-2 mb-4 w-full"
+            />
+            <DialogFooter>
+              <div className="flex justify-end gap-4">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowForm(false)}
+                  className="px-4 py-2 bg-gray-300 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddToCartConfirm}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                >
+                  Add to Cart
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
       <Footer />
     </>
   );

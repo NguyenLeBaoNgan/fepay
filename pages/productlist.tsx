@@ -13,17 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/router";
-
+import { motion } from "framer-motion";
 interface Product {
   id: number;
   name: string;
   description: string;
   price: number;
   quantity: number;
-  category: {
-    id: number;
-    name: string;
-  };
+  category: Category[];
   image: string;
 }
 
@@ -121,13 +118,28 @@ const ProductList: React.FC = () => {
 
   const filteredProducts = products.filter((product) => {
     let match = true;
+    // if (filters.category) {
+    //   const productCategory = product.category?.name?.toLowerCase().trim() || "";
+    //   const filterCategory = filters.category.toLowerCase().trim();
+    //   if (productCategory !== filterCategory) {
+    //     match = false;
+    //   }
+    // }
+    
     if (filters.category) {
-      const productCategory = product.category?.name?.toLowerCase().trim() || "";
       const filterCategory = filters.category.toLowerCase().trim();
-      if (productCategory !== filterCategory) {
+  
+      // Kiểm tra nếu ít nhất một category trong danh sách khớp với bộ lọc
+      const hasMatchingCategory = product.category.some(
+        (cat) => cat.name.toLowerCase().trim() === filterCategory
+      );
+  
+      if (!hasMatchingCategory) {
         match = false;
       }
     }
+    
+    
     if (filters.priceRange) {
       const [minPrice, maxPrice] = filters.priceRange.split("-").map(Number);
       if (product.price < minPrice || (maxPrice && product.price > maxPrice)) {
@@ -141,14 +153,12 @@ const ProductList: React.FC = () => {
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Product List</h1>
+    <div className="container mx-auto p-8">
+      <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-8">Product List</h1>
 
-      <div className="flex gap-4 mb-6">
-        <Select
-          onValueChange={(value) => handleFilterChange("category", value)}
-        >
-          <SelectTrigger className="w-[200px]">
+      <div className="flex flex-wrap justify-center gap-6 mb-8">
+        <Select onValueChange={(value) => handleFilterChange("category", value)}>
+          <SelectTrigger className="w-[220px] shadow-md rounded-lg bg-white">
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
@@ -161,10 +171,8 @@ const ProductList: React.FC = () => {
           </SelectContent>
         </Select>
 
-        <Select
-          onValueChange={(value) => handleFilterChange("priceRange", value)}
-        >
-          <SelectTrigger className="w-[200px]">
+        <Select onValueChange={(value) => handleFilterChange("priceRange", value)}>
+          <SelectTrigger className="w-[220px] shadow-md rounded-lg bg-white">
             <SelectValue placeholder="Select price range" />
           </SelectTrigger>
           <SelectContent>
@@ -176,41 +184,51 @@ const ProductList: React.FC = () => {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
-            <Card key={product.id}>
-              <CardHeader>
-                <Link href={`/product/${product.id}`}>
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded-md"
-                  />
-                </Link>
-              </CardHeader>
-              <CardContent>
-                <CardTitle>{product.name}</CardTitle>
-                <p className="text-blue-600 text-center">{product.price} VND</p>
-                {product.quantity === 0 ? (
-                  <Badge className="bg-red-500 text-white mt-2">
-                    Hết hàng
-                  </Badge>
-                ) : (
-                  <Button
-                    className="mt-2 w-full"
-                    onClick={() => handleBuyNow(product)}
-                  >
-                    Mua ngay
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            <motion.div key={product.id} whileHover={{ scale: 1.05 }}>
+              <Card className="shadow-lg rounded-xl overflow-hidden bg-white transition-all">
+                <CardHeader>
+                  <Link href={`/product/${product.id}`}>
+                    <motion.img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-52 object-cover rounded-t-xl"
+                      whileHover={{ scale: 1.1 }}
+                    />
+                  </Link>
+                </CardHeader>
+                <CardContent className="p-5">
+                  <CardTitle className="text-xl font-semibold text-gray-900 text-center">
+                    {product.name}
+                  </CardTitle>
+                  <p className="text-blue-600 text-center text-lg font-bold mt-2">{product.price} VND</p>
+                  {product.quantity === 0 ? (
+                    <Badge className="bg-red-500 text-white mt-3 text-sm py-1 px-3 rounded-full text-center">
+                      Hết hàng
+                    </Badge>
+                  ) : (
+                    <Button
+                      className="mt-4 w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg shadow-md hover:scale-105 transition"
+                      onClick={() => handleBuyNow(product)}
+                    >
+                      Mua ngay
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           ))
         ) : (
-          <p className="text-center col-span-full">No products found.</p>
+          <p className="text-center col-span-full text-lg font-medium text-gray-600">No products found.</p>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

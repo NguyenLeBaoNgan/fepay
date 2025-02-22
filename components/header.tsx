@@ -27,8 +27,8 @@ const Header: React.FC = () => {
   // Kiểm tra xem user có token không
   // useEffect(() => {
   //   const token = getTokenFromCookie();
-  //   setIsLoggedIn(!!token); // Cập nhật trạng thái đăng nhập dựa trên sự tồn tại của token
-  // }, [router.pathname]); // Dependency array để kiểm tra khi đường dẫn thay đổi
+  //   auth?.setIsLoggedIn(!!token);
+  // }, []); 
 
   // Xử lý logout
   const handleLogout = async () => {
