@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import apiClient from "@/utils/axiosClient";
 import { useAuth } from "@/components/AuthContext";
+import NavMenu from "./NavMenu";
 // Lấy token từ cookie
 function getTokenFromCookie(): string | null {
   const cookies = document.cookie.split("; ");
@@ -54,6 +55,7 @@ const Header: React.FC = () => {
   };
 
   return (
+    <>
     <header className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -120,6 +122,8 @@ const Header: React.FC = () => {
         </div>
       </div>
     </header>
+    {/* <NavMenu/> */}
+    </>
   );
 };
 

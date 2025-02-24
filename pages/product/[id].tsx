@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Tag } from "lucide-react";
+import FeedbackForm from "./feedback";
 interface ProductDetail {
   id: number;
   name: string;
@@ -186,30 +188,31 @@ const ProductDetail: React.FC = () => {
               {Array.isArray(product.category) &&
               product.category.length > 0 ? (
                 product.category.map((cat, index) => (
-                  <motion.button
+                  <motion.div
                     key={index}
-                    className="bg-gradient-to-r from-indigo-500 to-purple-700 text-white py-2 px-6 rounded-full shadow-md transform transition-all duration-300 hover:scale-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-50"
-                    whileHover={{ scale: 1.1 }}
+                    className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-700 text-white py-2 px-4 rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:brightness-110"
+                    whileHover={{ scale: 1.05 }}
                   >
-                    {cat.name}
-                  </motion.button>
+                    <Tag size={16} />
+                    <span className="text-sm font-medium">{cat.name}</span>
+                  </motion.div>
                 ))
               ) : (
                 <span className="text-gray-500">No Categories</span>
               )}
             </div>
-            <h3 className="text-5xl font-extrabold text-gray-900 mt-6">
+            <h3 className="text-3xl font-extrabold text-gray-900 mt-6">
               {product.name}
             </h3>
             <p className="text-gray-600 mt-5 text-lg leading-relaxed">
               {product.description}
             </p>
             <div className="mt-6 bg-gray-100 p-5 rounded-2xl shadow-sm flex justify-between items-center">
-              <p className="text-3xl font-bold text-gray-800">
-                <strong>Price:</strong> {product.price} VND
+              <p className="text-2xl font-bold text-gray-800">
+                <strong>Price:</strong> {product.price} vnd
               </p>
               <p className="text-lg text-gray-600">
-                <strong>Quantity:</strong> {product.quantity} available
+                <strong>Quantity:</strong> {product.quantity} 
               </p>
             </div>
             <div className="mt-8 flex justify-start">
@@ -262,6 +265,7 @@ const ProductDetail: React.FC = () => {
           </DialogContent>
         </Dialog>
       )}
+      <FeedbackForm productId={product?.id || 0} />
       <Footer />
     </>
   );
