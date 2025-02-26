@@ -17,9 +17,14 @@ interface Feedback {
   created_at: string;
 }
 
+interface FeedbackProps {
+  productId: number;
+  onFeedbackUpdate?: (newFeedbacks: Feedback[]) => void;
+}
+
 const ITEMS_PER_PAGE = 3;
 
-const Feedback = ({ productId }: { productId: number }) => {
+const Feedback = ({ productId, onFeedbackUpdate }: FeedbackProps) => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
@@ -58,7 +63,9 @@ const Feedback = ({ productId }: { productId: number }) => {
     try {
       const newFeedback = { product_id: productId, rating, comment };
       const response = await axiosClient.post(`/api/feedbacks`, newFeedback);
-      setFeedbacks((prev) => [response.data.data, ...prev]);
+      const updatedFeedbacks = [response.data.data, ...feedbacks];
+      setFeedbacks(updatedFeedbacks);
+      if (onFeedbackUpdate) onFeedbackUpdate(updatedFeedbacks);
       setRating(0);
       setComment("");
     } catch (error: any) {
@@ -78,7 +85,6 @@ const Feedback = ({ productId }: { productId: number }) => {
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Tạo mảng các icon sao để hiển thị
   const renderStars = (count: number, interactive = false) => {
     return [...Array(5)].map((_, i) => (
       <Star

@@ -41,6 +41,8 @@ const ProductDetail: React.FC = () => {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [averageRating, setAverageRating] = useState<number>(0);
   const productId = query.id as string;
+
+  const [feedbackLoading, setFeedbackLoading] = useState<boolean>(true);
   useEffect(() => {
     const fetchProductDetail = async () => {
       const { id } = query;
@@ -162,28 +164,49 @@ const ProductDetail: React.FC = () => {
       }
     }
   };
-  // useEffect(() => {
-  //   if (!productId) return;
+  useEffect(() => {
+    if (!productId) return;
+  
+    const fetchFeedbacks = async () => {
+      setFeedbackLoading(true);
+      try {
+        const response = await axiosClient.get(`/api/feedbacks/${productId}`);
+        const feedbackData = Array.isArray(response.data) ? response.data : [];
+        setFeedbacks(feedbackData);
+  
+        if (feedbackData.length > 0) {
+          const totalRating = feedbackData.reduce(
+            (sum: number, feedback: any) => sum + feedback.rating,
+            0
+          );
+          setAverageRating(totalRating / feedbackData.length);
+        } else {
+          setAverageRating(0);
+        }
+      } catch (error) {
+        console.error("Lỗi khi lấy đánh giá:", error);
+        setFeedbacks([]);
+        setAverageRating(0);
+      } finally {
+        setFeedbackLoading(false);
+      }
+    };
+  
+    fetchFeedbacks();
+  }, [productId]);
+  const handleFeedbackUpdate = (newFeedbacks: Feedback[]) => {
+    setFeedbacks(newFeedbacks);
+    if (newFeedbacks.length > 0) {
+      const totalRating = newFeedbacks.reduce(
+        (sum: number, fb: Feedback) => sum + fb.rating,
+        0
+      );
+      setAverageRating(totalRating / newFeedbacks.length);
+    } else {
+      setAverageRating(0);
+    }
+  };
 
-  //   const fetchFeedbacks = async (p: string[]) => {
-  //     try {
-  //       const response = await axiosClient.get(`/api/feedbacks/${productId}`);
-  //       setFeedbacks(response.data.feedbacks || []);
-
-  //       if (response.data.feedbacks.length > 0) {
-  //         const totalRating = response.data.feedbacks.reduce(
-  //           (sum: number, feedback: Feedback) => sum + feedback.rating,
-  //           0
-  //         );
-  //         setAverageRating(totalRating / response.data.feedbacks.length);
-  //       }
-  //     } catch (error) {
-  //       console.error("Lỗi khi lấy đánh giá:", error);
-  //     }
-  //   };
-
-  //   fetchFeedbacks([productId]);
-  // }, [productId]);
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -251,27 +274,27 @@ const ProductDetail: React.FC = () => {
 
             {/* Đánh giá */}
             <div className="flex items-center gap-1 mb-5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <svg
-                  key={star}
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill={star <= averageRating ? "#FFC107" : "none"}
-                  stroke={star <= averageRating ? "#FFC107" : "#E5E7EB"}
-                  strokeWidth="2"
-                  className="transition-all duration-300"
-                >
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
-              ))}
-              <span className="text-sm text-gray-500 ml-2">
-                {feedbacks.length > 0
-                  ? `(${feedbacks.length} đánh giá)`
-                  : "(Chưa có đánh giá)"}
-              </span>
-            </div>
+  {[1, 2, 3, 4, 5].map((star) => (
+    <svg
+      key={star}
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill={star <= Math.round(averageRating) ? "#FFC107" : "none"}
+      stroke={star <= Math.round(averageRating) ? "#FFC107" : "#E5E7EB"}
+      strokeWidth="2"
+      className="transition-all duration-300"
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  ))}
+  <span className="text-sm text-gray-500 ml-2">
+    {feedbacks.length > 0
+      ? `${averageRating.toFixed(1)} (${feedbacks.length} đánh giá)`
+      : "(Chưa có đánh giá)"}
+  </span>
+</div>
 
             <div className="relative">
               <motion.p
@@ -435,7 +458,7 @@ const ProductDetail: React.FC = () => {
           </div>
         </motion.div>
 
-        <FeedbackForm productId={product?.id || 0} />
+        <FeedbackForm productId={product?.id || 0} onFeedbackUpdate={handleFeedbackUpdate} />
       </div>
       {showForm && (
         <Dialog open={showForm} onOpenChange={setShowForm}>

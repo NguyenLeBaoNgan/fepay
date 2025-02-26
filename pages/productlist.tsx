@@ -1,17 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "@/utils/axiosClient";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 interface Product {
@@ -29,9 +18,18 @@ interface Category {
   name: string;
 }
 
+interface Feedback {
+  id: number;
+  rating: number;
+  comment: string;
+  user: { name: string };
+  created_at: string;
+}
+
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [ratings, setRatings] = useState<{ [key: number]: number }>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<{
@@ -41,15 +39,15 @@ const ProductList: React.FC = () => {
     category: "",
     priceRange: "",
   });
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const productsPerPage = 12;
 
   const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productResponse = await axiosClient.get<Product[]>(
-          "/api/products"
-        );
+        const productResponse = await axiosClient.get<Product[]>("/api/products");
         setProducts(productResponse.data);
       } catch (err) {
         setError("Failed to fetch products");
@@ -60,9 +58,7 @@ const ProductList: React.FC = () => {
 
     const fetchCategories = async () => {
       try {
-        const categoryResponse = await axiosClient.get<Category[]>(
-          "/api/categories"
-        );
+        const categoryResponse = await axiosClient.get<Category[]>("/api/categories");
         setCategories(categoryResponse.data);
       } catch (err) {
         setError("Failed to fetch categories");
@@ -73,11 +69,33 @@ const ProductList: React.FC = () => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const fetchRatings = async () => {
+        if (products.length === 0) return;
+
+        const productIds = products.map((product) => product.id);
+        try {
+            const response = await axiosClient.post("/api/feedbacks/batch", { productIds });
+            setRatings(response.data); 
+        } catch (error) {
+            console.error("Lỗi khi lấy batch ratings:", error);
+            const fallbackRatings = products.reduce((acc, product) => {
+                acc[product.id] = 0;
+                return acc;
+            }, {} as { [key: string]: number });
+            setRatings(fallbackRatings);
+        }
+    };
+
+    fetchRatings();
+}, [products]);
+
   const handleFilterChange = (name: string, value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       [name]: value === "all" ? "" : value,
     }));
+    setCurrentPage(1);
   };
 
   const handleBuyNow = (product: Product) => {
@@ -90,56 +108,36 @@ const ProductList: React.FC = () => {
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart") || "[]");
-
     const existingItemIndex = existingCart.findIndex(
       (item: any) => item.product_id === product.id
     );
 
     if (existingItemIndex !== -1) {
-      // Nếu đã có sản phẩm trong giỏ hàng, kiểm tra xem có đủ số lượng mua không
       if (existingCart[existingItemIndex].quantity >= product.quantity) {
         alert(`Đã có trong giỏ hàng. Chỉ còn ${product.quantity} sản phẩm.`);
         return;
       }
-
-      // Cập nhật số lượng nếu sản phẩm đã có trong giỏ hàng
       existingCart[existingItemIndex].quantity += 1;
       existingCart[existingItemIndex].total =
-        existingCart[existingItemIndex].price *
-        existingCart[existingItemIndex].quantity;
+        existingCart[existingItemIndex].price * existingCart[existingItemIndex].quantity;
     } else {
       existingCart.push(newItem);
     }
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
-
     router.push("/cart");
   };
 
   const filteredProducts = products.filter((product) => {
     let match = true;
-    // if (filters.category) {
-    //   const productCategory = product.category?.name?.toLowerCase().trim() || "";
-    //   const filterCategory = filters.category.toLowerCase().trim();
-    //   if (productCategory !== filterCategory) {
-    //     match = false;
-    //   }
-    // }
-    
     if (filters.category) {
       const filterCategory = filters.category.toLowerCase().trim();
-  
-      // Kiểm tra nếu ít nhất một category trong danh sách khớp với bộ lọc
       const hasMatchingCategory = product.category.some(
         (cat) => cat.name.toLowerCase().trim() === filterCategory
       );
-  
-      if (!hasMatchingCategory) {
-        match = false;
-      }
+      if (!hasMatchingCategory) match = false;
     }
-    
-    
+
     if (filters.priceRange) {
       const [minPrice, maxPrice] = filters.priceRange.split("-").map(Number);
       if (product.price < minPrice || (maxPrice && product.price > maxPrice)) {
@@ -149,86 +147,205 @@ const ProductList: React.FC = () => {
     return match;
   });
 
-  if (loading) return <Skeleton className="w-full h-40" />;
-  if (error) return <p className="text-red-500">Error: {error}</p>;
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const renderStars = (rating: number) => {
+    return [...Array(5)].map((_, i) => (
+      <svg
+        key={i}
+        className={`w-4 h-4 ${i < Math.round(rating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+      >
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      </svg>
+    ));
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 md:px-6 lg:px-8">
+        <div className="h-12 bg-gray-200 rounded-lg mb-8 animate-pulse"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="bg-gray-200 h-80 rounded-2xl animate-pulse"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) return <p className="text-red-500 text-center text-lg py-10">{error}</p>;
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-4xl font-extrabold text-gray-900 text-center mb-8">Product List</h1>
+    <div className="min-h-screen container mx-auto bg-gradient-to-br from-gray-100 via-white to-blue-50 px-4 py-8 md:px-6 lg:px-8">
+      <motion.h1
+        className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12 tracking-tight"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        Sản Phẩm
+      </motion.h1>
 
-      <div className="flex flex-wrap justify-center gap-6 mb-8">
-        <Select onValueChange={(value) => handleFilterChange("category", value)}>
-          <SelectTrigger className="w-[220px] shadow-md rounded-lg bg-white">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.name}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <motion.div
+        className="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-3xl mx-auto mb-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.6 }}
+      >
+        <select
+          className="w-full sm:w-64 p-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-gray-700"
+          onChange={(e) => handleFilterChange("category", e.target.value)}
+          value={filters.category || "all"}
+        >
+          <option value="all">Tất cả danh mục</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
 
-        <Select onValueChange={(value) => handleFilterChange("priceRange", value)}>
-          <SelectTrigger className="w-[220px] shadow-md rounded-lg bg-white">
-            <SelectValue placeholder="Select price range" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Prices</SelectItem>
-            <SelectItem value="0-10000">0 - 10,000 VND</SelectItem>
-            <SelectItem value="10000-50000">10,000 - 50,000 VND</SelectItem>
-            <SelectItem value="50000-max">50,000+ VND</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <select
+          className="w-full sm:w-64 p-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-gray-700"
+          onChange={(e) => handleFilterChange("priceRange", e.target.value)}
+          value={filters.priceRange || "all"}
+        >
+          <option value="all">Tất cả giá</option>
+          <option value="0-10000">0 - 10,000 VND</option>
+          <option value="10000-50000">10,000 - 50,000 VND</option>
+          <option value="50000-max">50,000+ VND</option>
+        </select>
+      </motion.div>
 
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8"
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
       >
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <motion.div key={product.id} whileHover={{ scale: 1.05 }}>
-              <Card className="shadow-lg rounded-xl overflow-hidden bg-white transition-all">
-                <CardHeader>
-                  <Link href={`/product/${product.id}`}>
-                    <motion.img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-52 object-cover rounded-t-xl"
-                      whileHover={{ scale: 1.1 }}
-                    />
-                  </Link>
-                </CardHeader>
-                <CardContent className="p-5">
-                  <CardTitle className="text-xl font-semibold text-gray-900 text-center">
+        {currentProducts.length > 0 ? (
+          currentProducts.map((product) => (
+            <motion.div
+              key={product.id}
+              className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300"
+              whileHover={{ scale: 1.03 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <Link href={`/product/${product.id}`}>
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-60 object-cover rounded-t-2xl transition-transform duration-300 hover:scale-105"
+                />
+              </Link>
+              <div className="p-5 flex flex-col items-center">
+                <Link href={`/product/${product.id}`}>
+                  <h3 className="text-lg font-semibold text-gray-800 text-center hover:text-blue-600 transition-colors">
                     {product.name}
-                  </CardTitle>
-                  <p className="text-blue-600 text-center text-lg font-bold mt-2">{product.price} VND</p>
-                  {product.quantity === 0 ? (
-                    <Badge className="bg-red-500 text-white mt-3 text-sm py-1 px-3 rounded-full text-center">
-                      Hết hàng
-                    </Badge>
-                  ) : (
-                    <Button
-                      className="mt-4 w-full bg-gradient-to-r from-blue-500 to-blue-700 text-white py-3 rounded-lg shadow-md hover:scale-105 transition"
-                      onClick={() => handleBuyNow(product)}
-                    >
-                      Mua ngay
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                  </h3>
+                </Link>
+                <div className="flex justify-between items-center w-full mt-3">
+                  <p className="text-blue-700 text-2xl font-bold">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(product.price)}
+                  </p>
+                  <div className="flex items-center">
+                    {renderStars(ratings[product.id] || 0)}
+                    <span className="text-sm text-gray-500 ml-1">
+                      ({ratings[product.id] ? ratings[product.id].toFixed(1) : "0"})
+                    </span>
+                  </div>
+                </div>
+                {product.quantity === 0 ? (
+                  <span className="mt-4 inline-block bg-red-100 text-red-600 py-1 px-3 rounded-full text-sm font-medium">
+                    Hết hàng
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleBuyNow(product)}
+                    className="mt-4 w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-2 rounded-lg hover:from-blue-700 hover:to-indigo-800 transition-all duration-200 shadow-md"
+                  >
+                    Mua ngay
+                  </button>
+                )}
+              </div>
             </motion.div>
           ))
         ) : (
-          <p className="text-center col-span-full text-lg font-medium text-gray-600">No products found.</p>
+          <motion.p
+            className="col-span-full text-center text-lg font-medium text-gray-600"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+          >
+            Không tìm thấy sản phẩm nào.
+          </motion.p>
         )}
       </motion.div>
+
+      {totalPages > 1 && (
+        <div className="mt-12 flex justify-center items-center gap-4">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 shadow-sm"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-10 h-10 flex items-center justify-center rounded-full border ${
+                  currentPage === page
+                    ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+                    : "bg-white text-gray-600 border-gray-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
+                } transition-all duration-300 shadow-sm`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 shadow-sm"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
