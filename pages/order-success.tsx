@@ -15,15 +15,17 @@ const OrderSuccess: React.FC = () => {
     <>
       <Header />
       <div className="container mx-auto p-6 text-center">
-        <h1 className="text-3xl font-bold mb-6">Order Successfully Placed!</h1>
+        <h1 className="text-3xl font-bold text-teal-700 mb-6">Order Successfully Placed!</h1>
         <p>Thank you for your order. You will receive an email confirmation shortly.</p>
-      </div>
-      <button
+        <img src="https://i.pinimg.com/originals/ac/a9/4c/aca94cbfe9cf770ec9149b032367b7a9.gif" alt="Order Success" className="mx-auto mt-6" />
+        <button
           onClick={handleViewOrderHistory}
-          className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-full"
+          className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-full"
         >
           View Order History
         </button>
+      </div>
+      
       <Footer />
     </>
   );

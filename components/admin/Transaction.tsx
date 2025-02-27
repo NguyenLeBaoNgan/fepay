@@ -15,6 +15,7 @@ const Transaction = () => {
     id: string;
     gateway: string;
     transaction_date: string;
+    // account_number: string;
     amount_in: number;
     amount_out: number;
   }
