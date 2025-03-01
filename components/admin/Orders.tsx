@@ -15,7 +15,7 @@ interface Order {
   id: string;
   user: string;
   total_amount: number;
-  status: "pending" | "unpaid" | "cancelled";
+  status: "paid" | "unpaid" | "cancelled" | "refunded";
   created_at: string;
   items: OrderItem[];
 }
@@ -96,13 +96,14 @@ const OrdersPage: React.FC = () => {
     total_amount: order.total_amount,
     status: (
       <select
-        value={order.status}
+        value={order.status.toLocaleLowerCase()}
         onChange={(e) => handleEditStatus(order.id, e.target.value as Order["status"])}
         className="border p-1 rounded"
       >
         <option value="paid">Paid</option>
         <option value="unpaid">Unpaid</option>
         <option value="cancelled">Cancelled</option>
+        <option value="refunded">Refunded</option>
       </select>
     ),
     created_at: order.created_at,

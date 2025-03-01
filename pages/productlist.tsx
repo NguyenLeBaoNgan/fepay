@@ -3,6 +3,7 @@ import axiosClient from "@/utils/axiosClient";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 interface Product {
   id: number;
   name: string;
@@ -47,7 +48,9 @@ const ProductList: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const productResponse = await axiosClient.get<Product[]>("/api/products");
+        const productResponse = await axiosClient.get<Product[]>(
+          "/api/products"
+        );
         setProducts(productResponse.data);
       } catch (err) {
         setError("Failed to fetch products");
@@ -58,7 +61,9 @@ const ProductList: React.FC = () => {
 
     const fetchCategories = async () => {
       try {
-        const categoryResponse = await axiosClient.get<Category[]>("/api/categories");
+        const categoryResponse = await axiosClient.get<Category[]>(
+          "/api/categories"
+        );
         setCategories(categoryResponse.data);
       } catch (err) {
         setError("Failed to fetch categories");
@@ -71,24 +76,26 @@ const ProductList: React.FC = () => {
 
   useEffect(() => {
     const fetchRatings = async () => {
-        if (products.length === 0) return;
+      if (products.length === 0) return;
 
-        const productIds = products.map((product) => product.id);
-        try {
-            const response = await axiosClient.post("/api/feedbacks/batch", { productIds });
-            setRatings(response.data); 
-        } catch (error) {
-            console.error("Lỗi khi lấy batch ratings:", error);
-            const fallbackRatings = products.reduce((acc, product) => {
-                acc[product.id] = 0;
-                return acc;
-            }, {} as { [key: string]: number });
-            setRatings(fallbackRatings);
-        }
+      const productIds = products.map((product) => product.id);
+      try {
+        const response = await axiosClient.post("/api/feedbacks/batch", {
+          productIds,
+        });
+        setRatings(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy batch ratings:", error);
+        const fallbackRatings = products.reduce((acc, product) => {
+          acc[product.id] = 0;
+          return acc;
+        }, {} as { [key: string]: number });
+        setRatings(fallbackRatings);
+      }
     };
 
     fetchRatings();
-}, [products]);
+  }, [products]);
 
   const handleFilterChange = (name: string, value: string) => {
     setFilters((prevFilters) => ({
@@ -119,7 +126,8 @@ const ProductList: React.FC = () => {
       }
       existingCart[existingItemIndex].quantity += 1;
       existingCart[existingItemIndex].total =
-        existingCart[existingItemIndex].price * existingCart[existingItemIndex].quantity;
+        existingCart[existingItemIndex].price *
+        existingCart[existingItemIndex].quantity;
     } else {
       existingCart.push(newItem);
     }
@@ -150,7 +158,10 @@ const ProductList: React.FC = () => {
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -161,7 +172,11 @@ const ProductList: React.FC = () => {
     return [...Array(5)].map((_, i) => (
       <svg
         key={i}
-        className={`w-4 h-4 ${i < Math.round(rating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+        className={`w-4 h-4 ${
+          i < Math.round(rating)
+            ? "text-yellow-400 fill-current"
+            : "text-gray-300"
+        }`}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
       >
@@ -176,17 +191,22 @@ const ProductList: React.FC = () => {
         <div className="h-12 bg-gray-200 rounded-lg mb-8 animate-pulse"></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-gray-200 h-80 rounded-2xl animate-pulse"></div>
+            <div
+              key={i}
+              className="bg-gray-200 h-80 rounded-2xl animate-pulse"
+            ></div>
           ))}
         </div>
       </div>
     );
   }
 
-  if (error) return <p className="text-red-500 text-center text-lg py-10">{error}</p>;
+  if (error)
+    return <p className="text-red-500 text-center text-lg py-10">{error}</p>;
 
   return (
     <div className="min-h-screen container mx-auto bg-gradient-to-br from-gray-100 via-white to-blue-50 px-4 py-8 md:px-6 lg:px-8">
+
       <motion.h1
         className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12 tracking-tight"
         initial={{ opacity: 0, y: -30 }}
@@ -266,7 +286,11 @@ const ProductList: React.FC = () => {
                   <div className="flex items-center">
                     {renderStars(ratings[product.id] || 0)}
                     <span className="text-sm text-gray-500 ml-1">
-                      ({ratings[product.id] ? ratings[product.id].toFixed(1) : "0"})
+                      (
+                      {ratings[product.id]
+                        ? ratings[product.id].toFixed(1)
+                        : "0"}
+                      )
                     </span>
                   </div>
                 </div>
@@ -297,55 +321,125 @@ const ProductList: React.FC = () => {
         )}
       </motion.div>
 
-      {totalPages > 1 && (
-        <div className="mt-12 flex justify-center items-center gap-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 shadow-sm"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
 
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`w-10 h-10 flex items-center justify-center rounded-full border ${
-                  currentPage === page
-                    ? "bg-blue-600 text-white border-blue-600 shadow-lg"
-                    : "bg-white text-gray-600 border-gray-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
-                } transition-all duration-300 shadow-sm`}
-              >
-                {page}
-              </button>
-            ))}
-          </div>
+{totalPages > 1 && (
+  <div className="mt-12 flex justify-center items-center gap-4">
+    {/* Nút Previous */}
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => handlePageChange(currentPage - 1)}
+      disabled={currentPage === 1}
+      className="w-10 h-10 rounded-full border-gray-200 text-gray-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-sm"
+    >
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </Button>
 
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-300 shadow-sm"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
+    {/* Các nút phân trang */}
+    <div className="flex items-center gap-2">
+      {/* Trang đầu */}
+      <Button
+        variant={currentPage === 1 ? "default" : "outline"}
+        size="icon"
+        onClick={() => handlePageChange(1)}
+        className={`w-10 h-10 rounded-full ${
+          currentPage === 1
+            ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+            : "text-gray-600 border-gray-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
+        } transition-all duration-300 shadow-sm`}
+      >
+        1
+      </Button>
+
+      {/* Dấu "..." phía trước */}
+      {totalPages > 1 && currentPage > 4 && (
+        <span className="text-gray-600 mx-1">...</span>
       )}
+
+      {/* Các trang giữa */}
+      {Array.from({ length: totalPages }, (_, i) => i + 1)
+        .filter((page) => {
+          return (
+            page !== 1 &&
+            page !== totalPages &&
+            page >= currentPage - 1 &&
+            page <= currentPage + 1
+          );
+        })
+        .map((page) => (
+          <Button
+            key={page}
+            variant={currentPage === page ? "default" : "outline"}
+            size="icon"
+            onClick={() => handlePageChange(page)}
+            className={`w-10 h-10 rounded-full ${
+              currentPage === page
+                ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+                : "text-gray-600 border-gray-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
+            } transition-all duration-300 shadow-sm`}
+          >
+            {page}
+          </Button>
+        ))}
+
+      {/* Dấu "..." phía sau */}
+      {totalPages > 4 && currentPage < totalPages - 2 && (
+        <span className="text-gray-600 mx-1">...</span>
+      )}
+
+      {/* Trang cuối */}
+      {totalPages > 1 && (
+        <Button
+          variant={currentPage === totalPages ? "default" : "outline"}
+          size="icon"
+          onClick={() => handlePageChange(totalPages)}
+          className={`w-10 h-10 rounded-full ${
+            currentPage === totalPages
+              ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+              : "text-gray-600 border-gray-200 hover:bg-blue-600 hover:text-white hover:border-blue-600"
+          } transition-all duration-300 shadow-sm`}
+        >
+          {totalPages}
+        </Button>
+      )}
+    </div>
+
+    {/* Nút Next */}
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => handlePageChange(currentPage + 1)}
+      disabled={currentPage === totalPages}
+      className="w-10 h-10 rounded-full border-gray-200 text-gray-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-sm"
+    >
+      <svg
+        className="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M9 5l7 7-7 7"
+        />
+      </svg>
+    </Button>
+  </div>
+)}
     </div>
   );
 };

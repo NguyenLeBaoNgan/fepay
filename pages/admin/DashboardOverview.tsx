@@ -9,9 +9,9 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
+  Legend,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ArrowUpCircle, ShoppingCart, Users } from "lucide-react";
 import Header from "@/components/header";
@@ -19,18 +19,8 @@ import Footer from "@/components/footer";
 import axiosClient from "@/utils/axiosClient";
 
 const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
 interface DashboardOverviewProps {
@@ -54,12 +44,10 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     axiosClient
       .get(`/api/revenue`, { params: { year } })
       .then((response) => {
-        const formattedData = response.data.monthly_revenue.map(
-          (item: any) => ({
-            month: monthNames[item.month - 1],
-            total: item.total,
-          })
-        );
+        const formattedData = response.data.monthly_revenue.map((item: any) => ({
+          month: monthNames[item.month - 1],
+          total: item.total,
+        }));
         setMonthlyRevenue(formattedData);
 
         const currentMonthData = response.data.monthly_transactions.find(
@@ -67,15 +55,14 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         );
         setCurrentMonthStats(currentMonthData || null);
       })
-      .catch((error) =>
-        console.error("Error fetching monthly revenue:", error)
-      );
+      .catch((error) => console.error("Error fetching monthly revenue:", error));
   }, [year]);
 
   useEffect(() => {
     axiosClient
       .get(`/api/transactions`, { params: { year } })
       .then((response) => {
+        console.log("API Response for year", year, response.data);
         const monthlyData = Array(12)
           .fill(null)
           .map((_, index) => ({
@@ -83,127 +70,138 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             amount_in: 0,
             amount_out: 0,
           }));
-
+  
         response.data.forEach((item: any) => {
           const date = new Date(item.transaction_date);
+          const transactionYear = date.getFullYear();
           const monthIndex = date.getMonth();
-          monthlyData[monthIndex].amount_in += parseFloat(item.amount_in) || 0;
-          monthlyData[monthIndex].amount_out +=
-            parseFloat(item.amount_out) || 0;
+  
+          if (transactionYear === year) {
+            monthlyData[monthIndex].amount_in += parseFloat(item.amount_in) || 0;
+            monthlyData[monthIndex].amount_out += parseFloat(item.amount_out) || 0;
+          }
         });
-
+  
+        console.log("Processed monthlyTransactions for year", year, monthlyData);
+  
         setMonthlyTransactions(monthlyData);
       })
-      .catch((error) =>
-        console.error("Error fetching transaction data:", error)
-      );
+      .catch((error) => console.error("Error fetching transaction data:", error));
   }, [year]);
-
   return (
     <>
-      {" "}
       <Header />
-      <div className="min-h-screen bg-gray-100">
-        <div className="container mx-auto px-6 py-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-8">Tổng quan</h1>
-
-          {/* Thẻ thống kê */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <StatCard
-              title="Tổng Sản phẩm"
-              count={products?.length}
-              color="blue"
-              icon={ShoppingCart}
-            />
-            <StatCard
-              title="Total Orders"
-              count={orders?.length}
-              color="green"
-              icon={ArrowUpCircle}
-            />
-            <StatCard
-              title="Total Users"
-              count={users?.length}
-              color="purple"
-              icon={Users}
-            />
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-semibold text-gray-900">Dashboard</h1>
+            <select
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+              className="px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            >
+              {Array.from({ length: 2 }, (_, i) => (
+                <option key={i} value={new Date().getFullYear() - i}>
+                  {new Date().getFullYear() - i}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Thẻ thông tin tháng hiện tại */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <StatCard title="Sản phẩm" count={products?.length} color="indigo" icon={ShoppingCart} />
+            <StatCard title="Đơn hàng" count={orders?.length} color="emerald" icon={ArrowUpCircle} />
+            <StatCard title="Người dùng" count={users?.length} color="violet" icon={Users} />
+          </div>
+
           {currentMonthStats && (
-            <Card className="bg-white shadow-lg rounded-lg p-6 mb-8">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-gray-700">
-                  📅 Tổng thu tháng {monthNames[currentMonth]}
+            <Card className="bg-white rounded-lg shadow-sm p-6 mb-8 border border-gray-100">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium text-gray-900">
+                  Tổng quan tháng {monthNames[currentMonth]}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-gray-600">
-                <p>
-                  <strong>Tổng thu:</strong>{" "}
-                  <span className="text-green-600 font-bold">
-                    {new Intl.NumberFormat("vi-VN", {
-                      style: "currency",
-                      currency: "VND",
-                    }).format(
+              <CardContent className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                  <p>Tổng thu</p>
+                  <p className="text-xl font-semibold text-emerald-600">
+                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
                       currentMonthStats.amount_in - currentMonthStats.amount_out
                     )}
-                  </span>
-                </p>
-                <p>
-                  <strong>Giao dịch:</strong>{" "}
-                  {currentMonthStats.total_transactions || 0}
-                </p>
-                <p>
-                  <strong>Tiền vào:</strong> {currentMonthStats.count_in || 0}
-                </p>
-                <p>
-                  <strong>Tiền ra:</strong> {currentMonthStats.count_out || 0}
-                </p>
+                  </p>
+                </div>
+                <div>
+                  <p>Giao dịch</p>
+                  <p className="text-xl font-semibold">{currentMonthStats.total_transactions || 0}</p>
+                </div>
+                <div>
+                  <p>Tiền vào</p>
+                  <p className="text-lg font-medium text-emerald-500">{currentMonthStats.count_in || 0}</p>
+                </div>
+                <div>
+                  <p>Tiền ra</p>
+                  <p className="text-lg font-medium text-red-500">{currentMonthStats.count_out || 0}</p>
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Biểu đồ */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card className="bg-white shadow-lg rounded-lg p-6">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-gray-700">
-                  📈 Doanh thu ({year})
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium text-gray-900">
+                  Doanh thu {year}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={monthlyRevenue}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid stroke="#e5e7eb" strokeDasharray="5 5" />
+                    <XAxis dataKey="month" stroke="#6b7280" tickMargin={10} />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "6px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                      }}
+                    />
                     <Line
                       type="monotone"
                       dataKey="total"
-                      stroke="#4f46e5"
-                      strokeWidth={3}
+                      stroke="#6366f1"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "#6366f1" }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
-            <Card className="bg-white shadow-lg rounded-lg p-6">
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold text-gray-700">
-                  💰 Tiền vào / Tiền ra ({year})
+            <Card className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg font-medium text-gray-900">
+                  Tiền vào / Tiền ra {year}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={monthlyTransactions}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="amount_in" fill="#34d399" name="Tiền Vào" />
-                    <Bar dataKey="amount_out" fill="#f87171" name="Tiền Ra" />
+                    <CartesianGrid stroke="#e5e7eb" strokeDasharray="5 5" />
+                    <XAxis dataKey="month" stroke="#6b7280" tickMargin={10} />
+                    <YAxis stroke="#6b7280" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "6px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                      }}
+                    />
+                    <Legend verticalAlign="top" height={36} />
+                    <Bar dataKey="amount_in" fill="#10b981" name="Tiền Vào" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="amount_out" fill="#ef4444" name="Tiền Ra" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -222,11 +220,18 @@ const StatCard: React.FC<{
   color: string;
   icon: any;
 }> = ({ title, count, color, icon: Icon }) => (
-  <Card className="bg-white shadow-lg rounded-lg p-6 flex items-center gap-4 hover:scale-105 transition">
-    <Icon className={`text-${color}-500`} size={32} />
-    <div>
-      <p className="text-gray-600">{title}</p>
-      <p className="text-2xl font-bold text-gray-800">{count}</p>
+  <Card
+    className={cn(
+      "bg-white rounded-lg shadow-sm p-4 border border-gray-100",
+      "hover:shadow-md transition-shadow duration-200"
+    )}
+  >
+    <div className="flex items-center gap-3">
+      <Icon className={`text-${color}-500 w-8 h-8`} />
+      <div>
+        <p className="text-sm text-gray-500">{title}</p>
+        <p className="text-2xl font-semibold text-gray-900">{count}</p>
+      </div>
     </div>
   </Card>
 );

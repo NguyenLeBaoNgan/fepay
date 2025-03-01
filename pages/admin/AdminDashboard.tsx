@@ -145,7 +145,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
       <Sidebar selectedTab={selectedTab} setSelectedTab={setSelectedTab} />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 ml-64">
         {selectedTab === "dashboard" && (
           <DashboardOverview
             products={products}
@@ -173,193 +173,195 @@ const AdminDashboard: React.FC = () => {
 
       {/* Modal Edit Product */}
       {editingProduct && (
-        <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto">
-          <h2 className="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">
-            Chỉnh sửa sản phẩm
-          </h2>
+  <dialog
+    open={isModalOpen}
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+  >
+    <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+      <h2 className="text-2xl font-bold mb-8 text-gray-800 border-b pb-4">
+        Chỉnh sửa sản phẩm
+      </h2>
 
-          <div
-            className="space-y-6"
-            style={{ maxHeight: "70vh", overflowY: "auto" }}
-          >
-            {/* Ảnh sản phẩm */}
-            <div className="mb-6">
-              <label className="block text-gray-700 font-medium mb-2">
-                Ảnh sản phẩm
-              </label>
-              <div className="flex items-center space-x-4">
-                {typeof editingProduct.image === "string" ? (
-                  <img
-                    src={editingProduct.image}
-                    alt="Product"
-                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                  />
-                ) : editingProduct.image ? (
-                  <img
-                    src={URL.createObjectURL(editingProduct.image)} // Hiển thị ảnh đã chọn
-                    alt="Product"
-                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                  />
-                ) : (
-                  <div className="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                    <span className="text-gray-400">Chưa có ảnh</span>
-                  </div>
-                )}
-                <div className="flex-1">
-                  <input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files ? e.target.files[0] : null;
-                      if (file) {
-                        setEditingProduct({
-                          ...editingProduct,
-                          image: file, // Lưu tệp hình ảnh vào state
-                        });
-                      }
-                    }}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className="inline-block px-4 py-2 bg-white border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                  >
-                    Chọn ảnh mới
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Thông tin cơ bản */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Tên sản phẩm
-                </label>
-                <input
-                  type="text"
-                  value={editingProduct.name}
-                  onChange={(e) =>
-                    setEditingProduct({
-                      ...editingProduct,
-                      name: e.target.value,
-                    })
-                  }
-                  className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="Nhập tên sản phẩm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Giá
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-3 text-gray-500">₫</span>
-                  <input
-                    type="number"
-                    value={editingProduct.price}
-                    onChange={(e) =>
-                      setEditingProduct({
-                        ...editingProduct,
-                        price: Number(e.target.value),
-                      })
-                    }
-                    className="w-full pl-8 border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Mô tả */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Mô tả
-              </label>
-              <textarea
-                value={editingProduct.description}
-                onChange={(e) =>
-                  setEditingProduct({
-                    ...editingProduct,
-                    description: e.target.value,
-                  })
-                }
-                className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                rows={4}
-                placeholder="Nhập mô tả sản phẩm..."
+      <div className="space-y-6">
+        {/* Ảnh sản phẩm */}
+        <div className="mb-6">
+          <label className="block text-gray-700 font-medium mb-2">
+            Ảnh sản phẩm
+          </label>
+          <div className="flex items-center space-x-4">
+            {typeof editingProduct.image === "string" ? (
+              <img
+                src={editingProduct.image}
+                alt="Product"
+                className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
               />
-            </div>
-
-            {/* Số lượng & Danh mục */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Số lượng
-                </label>
-                <input
-                  type="number"
-                  value={editingProduct.quantity}
-                  onChange={(e) =>
+            ) : editingProduct.image ? (
+              <img
+                src={URL.createObjectURL(editingProduct.image)}
+                alt="Product"
+                className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+              />
+            ) : (
+              <div className="w-32 h-32 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
+                <span className="text-gray-400">Chưa có ảnh</span>
+              </div>
+            )}
+            <div className="flex-1">
+              <input
+                type="file"
+                onChange={(e) => {
+                  const file = e.target.files ? e.target.files[0] : null;
+                  if (file) {
                     setEditingProduct({
                       ...editingProduct,
-                      quantity: Number(e.target.value),
-                    })
+                      image: file,
+                    });
                   }
-                  className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  placeholder="0"
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">
-                  Danh mục
-                </label>
-                <select
-                  multiple
-                  value={editingProduct.category}
-                  onChange={(e) =>
-                    setEditingProduct({
-                      ...editingProduct,
-                      category: Array.from(
-                        e.target.selectedOptions,
-                        (option) => option.value
-                      ),
-                    })
-                  }
-                  className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex justify-end space-x-4 pt-6 mt-8 border-t">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setEditingProduct(null);
                 }}
-                className="px-6 py-2 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                className="hidden"
+                id="image-upload"
+              />
+              <label
+                htmlFor="image-upload"
+                className="inline-block px-4 py-2 bg-white border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
               >
-                Hủy
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Lưu thay đổi
-              </button>
+                Chọn ảnh mới
+              </label>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Thông tin cơ bản */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Tên sản phẩm
+            </label>
+            <input
+              type="text"
+              value={editingProduct.name}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  name: e.target.value,
+                })
+              }
+              className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="Nhập tên sản phẩm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Giá
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-gray-500">₫</span>
+              <input
+                type="number"
+                value={editingProduct.price}
+                onChange={(e) =>
+                  setEditingProduct({
+                    ...editingProduct,
+                    price: Number(e.target.value),
+                  })
+                }
+                className="w-full pl-8 border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="0"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Mô tả */}
+        <div>
+          <label className="block text-gray-700 font-medium mb-2">
+            Mô tả
+          </label>
+          <textarea
+            value={editingProduct.description}
+            onChange={(e) =>
+              setEditingProduct({
+                ...editingProduct,
+                description: e.target.value,
+              })
+            }
+            className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            rows={4}
+            placeholder="Nhập mô tả sản phẩm..."
+          />
+        </div>
+
+        {/* Số lượng & Danh mục */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Số lượng
+            </label>
+            <input
+              type="number"
+              value={editingProduct.quantity}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  quantity: Number(e.target.value),
+                })
+              }
+              className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              placeholder="0"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">
+              Danh mục
+            </label>
+            <select
+              multiple
+              value={editingProduct.category}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  category: Array.from(
+                    e.target.selectedOptions,
+                    (option) => option.value
+                  ),
+                })
+              }
+              className="w-full border-2 border-gray-200 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+            >
+              {categories.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end space-x-4 pt-6 mt-8 border-t">
+          <button
+            onClick={() => {
+              setIsModalOpen(false);
+              setEditingProduct(null);
+            }}
+            className="px-6 py-2 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Hủy
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+)}
       {editingUser && (
         <EditUser
           editingUser={editingUser}
