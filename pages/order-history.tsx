@@ -2,8 +2,16 @@ import React, { useEffect, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import axiosClient from "@/utils/axiosClient";
-import { ChevronDownIcon, ChevronUpIcon, ShoppingBagIcon, ArrowPathIcon, CalendarIcon, CreditCardIcon, TruckIcon } from "@heroicons/react/24/outline";
-
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  ShoppingBagIcon,
+  ArrowPathIcon,
+  CalendarIcon,
+  CreditCardIcon,
+  TruckIcon,
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
 interface OrderItem {
   name: string;
   quantity: number;
@@ -57,7 +65,9 @@ const OrderHistory: React.FC = () => {
     const fetchOrders = async () => {
       setIsLoading(true);
       try {
-        const response = await axiosClient.get(`/api/history?page=${currentPage}`);
+        const response = await axiosClient.get(
+          `/api/history?page=${currentPage}`
+        );
         const data = response.data;
         if (data && Array.isArray(data.data)) {
           setOrders(data.data);
@@ -194,8 +204,12 @@ const OrderHistory: React.FC = () => {
       <div className="bg-gray-50 min-h-screen py-10">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="mb-8 text-center md:text-left">
-            <h1 className="text-3xl font-bold text-blue-600">Lịch Sử Đơn Hàng</h1>
-            <p className="text-gray-600 mt-2">Xem và quản lý tất cả đơn hàng của bạn</p>
+            <h1 className="text-3xl font-bold text-blue-600">
+              Lịch Sử Đơn Hàng
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Xem và quản lý tất cả đơn hàng của bạn
+            </p>
           </div>
 
           {isLoading ? (
@@ -206,19 +220,22 @@ const OrderHistory: React.FC = () => {
                   <ShoppingBagIcon className="h-8 w-8 text-indigo-600" />
                 </div>
               </div>
-              <span className="ml-4 text-gray-700 font-medium">Đang tải đơn hàng...</span>
+              <span className="ml-4 text-gray-700 font-medium">
+                Đang tải đơn hàng...
+              </span>
             </div>
           ) : orders.length === 0 ? (
             <div className="bg-white p-10 rounded-xl shadow-sm border border-gray-100 text-center max-w-2xl mx-auto">
               <ShoppingBagIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Chưa có đơn hàng nào</h2>
-              <p className="text-gray-600 mb-6">Bạn chưa có đơn hàng nào trong lịch sử mua sắm.</p>
-              <a
-                href="/"
-                className="inline-block px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-300 shadow-sm hover:shadow"
-              >
-                Khám phá sản phẩm
-              </a>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                Chưa có đơn hàng nào
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Bạn chưa có đơn hàng nào trong lịch sử mua sắm.
+              </p>
+              <Link href="/">
+                <a>Quay về trang chủ</a>
+              </Link>
             </div>
           ) : (
             <div className="space-y-6">
@@ -274,7 +291,9 @@ const OrderHistory: React.FC = () => {
                           <button
                             onClick={() => toggleDetails(order.order_id)}
                             className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 transition-colors"
-                            aria-label={isExpanded ? "Ẩn chi tiết" : "Xem chi tiết"}
+                            aria-label={
+                              isExpanded ? "Ẩn chi tiết" : "Xem chi tiết"
+                            }
                           >
                             {isExpanded ? (
                               <ChevronUpIcon className="h-5 w-5" />
@@ -295,14 +314,18 @@ const OrderHistory: React.FC = () => {
                           >
                             <div className="flex items-center gap-2">
                               <div className="w-10 h-10 rounded-md bg-gray-100 flex items-center justify-center text-gray-500">
-                                <span className="text-xs font-medium">{item.quantity}x</span>
+                                <span className="text-xs font-medium">
+                                  {item.quantity}x
+                                </span>
                               </div>
                               <span className="font-medium text-gray-800 truncate max-w-xs">
                                 {item.name}
                               </span>
                             </div>
                             <span className="font-medium text-gray-700">
-                              {formatCurrency(parseFloat(item.price) * item.quantity)}
+                              {formatCurrency(
+                                parseFloat(item.price) * item.quantity
+                              )}
                             </span>
                           </div>
                         ))}
@@ -325,16 +348,26 @@ const OrderHistory: React.FC = () => {
                                 </h4>
                                 <div className="space-y-2 text-sm">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-600">Phương thức:</span>
-                                    <span className="font-medium text-gray-800">{order.payment.method}</span>
+                                    <span className="text-gray-600">
+                                      Phương thức:
+                                    </span>
+                                    <span className="font-medium text-gray-800">
+                                      {order.payment.method}
+                                    </span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-600">Trạng thái:</span>
-                                    <span className="font-medium text-gray-800">{order.payment.payment_status}</span>
+                                    <span className="text-gray-600">
+                                      Trạng thái:
+                                    </span>
+                                    <span className="font-medium text-gray-800">
+                                      {order.payment.payment_status}
+                                    </span>
                                   </div>
                                   {order.payment.transaction_id && (
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Mã giao dịch:</span>
+                                      <span className="text-gray-600">
+                                        Mã giao dịch:
+                                      </span>
                                       <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-800">
                                         {order.payment.transaction_id}
                                       </span>
@@ -342,7 +375,9 @@ const OrderHistory: React.FC = () => {
                                   )}
                                   {canCancel && (
                                     <button
-                                      onClick={() => handleCancelOrder(order.order_id)}
+                                      onClick={() =>
+                                        handleCancelOrder(order.order_id)
+                                      }
                                       disabled={isCancelling === order.order_id}
                                       className={`mt-4  py-2 rounded-lg font-medium transition-all duration-200 ${
                                         isCancelling === order.order_id
@@ -350,7 +385,9 @@ const OrderHistory: React.FC = () => {
                                           : "bg-red-500 text-white"
                                       }`}
                                     >
-                                      {isCancelling === order.order_id ? "Đang hủy..." : "Hủy đơn hàng"}
+                                      {isCancelling === order.order_id
+                                        ? "Đang hủy..."
+                                        : "Hủy đơn hàng"}
                                     </button>
                                   )}
                                 </div>
@@ -366,20 +403,34 @@ const OrderHistory: React.FC = () => {
                                 <div className="space-y-2 text-sm">
                                   <div className="grid grid-cols-[100px_1fr] gap-2">
                                     <span className="text-gray-600">SĐT:</span>
-                                    <span className="font-medium text-gray-800">{order.payment_details.phone}</span>
+                                    <span className="font-medium text-gray-800">
+                                      {order.payment_details.phone}
+                                    </span>
                                   </div>
                                   <div className="grid grid-cols-[100px_1fr] gap-2">
-                                    <span className="text-gray-600">Email:</span>
-                                    <span className="font-medium text-gray-800">{order.payment_details.email}</span>
+                                    <span className="text-gray-600">
+                                      Email:
+                                    </span>
+                                    <span className="font-medium text-gray-800">
+                                      {order.payment_details.email}
+                                    </span>
                                   </div>
                                   <div className="grid grid-cols-[100px_1fr] gap-2">
-                                    <span className="text-gray-600">Địa chỉ:</span>
-                                    <span className="font-medium text-gray-800">{order.payment_details.address}</span>
+                                    <span className="text-gray-600">
+                                      Địa chỉ:
+                                    </span>
+                                    <span className="font-medium text-gray-800">
+                                      {order.payment_details.address}
+                                    </span>
                                   </div>
                                   {order.payment_details.note && (
                                     <div className="mt-2 pt-2 border-t border-gray-100">
-                                      <span className="text-gray-600 block mb-1">Ghi chú:</span>
-                                      <p className="bg-gray-50 p-2 rounded text-gray-700 text-sm">{order.payment_details.note}</p>
+                                      <span className="text-gray-600 block mb-1">
+                                        Ghi chú:
+                                      </span>
+                                      <p className="bg-gray-50 p-2 rounded text-gray-700 text-sm">
+                                        {order.payment_details.note}
+                                      </p>
                                     </div>
                                   )}
                                 </div>
@@ -407,7 +458,7 @@ const OrderHistory: React.FC = () => {
                     >
                       ← Trang trước
                     </button>
-                    
+
                     <div className="flex justify-center items-center">
                       {getPageNumbers().map((page, idx) => (
                         <button
@@ -419,14 +470,16 @@ const OrderHistory: React.FC = () => {
                               ? "bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 border border-gray-200"
                               : "text-gray-400 cursor-default bg-transparent border-none"
                           }`}
-                          onClick={() => typeof page === "number" && handlePageChange(page)}
+                          onClick={() =>
+                            typeof page === "number" && handlePageChange(page)
+                          }
                           disabled={typeof page !== "number"}
                         >
                           {page}
                         </button>
                       ))}
                     </div>
-                    
+
                     <button
                       className={`px-5 py-2.5 rounded-lg font-medium transition duration-200 ${
                         currentPage === totalPages
