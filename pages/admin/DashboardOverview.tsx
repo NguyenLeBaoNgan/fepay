@@ -49,14 +49,14 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           total: item.total,
         }));
         setMonthlyRevenue(formattedData);
-
+  
         const currentMonthData = response.data.monthly_transactions.find(
           (item: any) => item.month === currentMonth + 1
         );
         setCurrentMonthStats(currentMonthData || null);
       })
       .catch((error) => console.error("Error fetching monthly revenue:", error));
-  }, [year]);
+  }, [year, currentMonth]);
 
   useEffect(() => {
     axiosClient

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axiosClient from "@/utils/axiosClient";
 import { FaQrcode, FaFilter } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
@@ -67,10 +67,9 @@ const Transaction = () => {
     fetchTransactions();
   }, []);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filteredData = [...transactions];
-
-    // Lọc theo loại giao dịch
+  
     switch (filter) {
       case "amount_in":
         filteredData = filteredData.filter((t) => t.amount_in > 0);
@@ -82,32 +81,27 @@ const Transaction = () => {
       default:
         break;
     }
-
-    // Lọc theo khoảng ngày
+  
     if (startDate) {
       filteredData = filteredData.filter((t) => {
         const transactionDate = new Date(t.transaction_date);
-        // Chuẩn hóa transactionDate về 00:00:00 để so sánh ngày
         transactionDate.setHours(0, 0, 0, 0);
-
         const start = new Date(startDate);
-        start.setHours(0, 0, 0, 0); // Chuẩn hóa startDate về đầu ngày
-
-        // Nếu không có endDate hoặc endDate trùng startDate, lọc chính xác 1 ngày
+        start.setHours(0, 0, 0, 0);
+  
         if (!endDate || start.getTime() === (endDate ? new Date(endDate).setHours(0, 0, 0, 0) : 0)) {
           return transactionDate.getTime() === start.getTime();
         }
-
-        // Nếu có endDate khác startDate, lọc theo khoảng
+  
         const end = endDate ? new Date(endDate) : null;
-        if (end) end.setHours(23, 59, 59, 999); // Chuẩn hóa endDate về cuối ngày
-
+        if (end) end.setHours(23, 59, 59, 999);
+  
         return transactionDate >= start && (!end || transactionDate <= end);
       });
     }
-
+  
     setFilteredTransactions(filteredData);
-  };
+  }, [transactions, filter, startDate, endDate]);
 
   const handleFilter = (filterType: string) => {
     setFilter(filterType);
@@ -116,7 +110,7 @@ const Transaction = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [dateRange, transactions]);
+  }, [dateRange, transactions, applyFilters]);
 
   const generateQR = () => {
     if (!account || !bank) {

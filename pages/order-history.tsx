@@ -234,7 +234,7 @@ const OrderHistory: React.FC = () => {
                 Bạn chưa có đơn hàng nào trong lịch sử mua sắm.
               </p>
               <Link href="/">
-                <a>Quay về trang chủ</a>
+                Quay về trang chủ
               </Link>
             </div>
           ) : (
