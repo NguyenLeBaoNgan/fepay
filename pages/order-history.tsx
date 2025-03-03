@@ -1,5 +1,3 @@
-// pages/order-history.tsx
-
 import React, { useEffect, useState } from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -42,6 +40,8 @@ const OrderHistory: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedOrders, setExpandedOrders] = useState<string[]>([]);
+  const [isCancelling, setIsCancelling] = useState<string | null>(null); // Trạng thái hủy
+
   const perPage = 10;
 
   const formatCurrency = (amount: string | number) => {
@@ -85,11 +85,10 @@ const OrderHistory: React.FC = () => {
     );
   };
 
-  // Chuyển trang
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages && page !== currentPage) {
       setCurrentPage(page);
-      setExpandedOrders([]); 
+      setExpandedOrders([]);
     }
   };
 
@@ -118,7 +117,6 @@ const OrderHistory: React.FC = () => {
     return pages;
   };
 
-
   const getStatusInfo = (order: Order) => {
     const status = order.status.toLowerCase();
     switch (status) {
@@ -127,36 +125,66 @@ const OrderHistory: React.FC = () => {
           color: "bg-emerald-600",
           text: "text-emerald-50",
           label: "Đã thanh toán",
-          icon: <CreditCardIcon className="h-4 w-4" />
+          icon: <CreditCardIcon className="h-4 w-4" />,
         };
       case "unpaid":
         return {
           color: "bg-amber-500",
           text: "text-amber-50",
           label: "Chờ thanh toán",
-          icon: <CalendarIcon className="h-4 w-4" />
+          icon: <CalendarIcon className="h-4 w-4" />,
         };
       case "cancelled":
         return {
           color: "bg-rose-600",
           text: "text-rose-50",
           label: "Đã hủy",
-          icon: <ArrowPathIcon className="h-4 w-4" />
+          icon: <ArrowPathIcon className="h-4 w-4" />,
         };
       case "refunded":
         return {
           color: "bg-blue-600",
           text: "text-blue-50",
           label: "Đã hoàn tiền",
-          icon: <CreditCardIcon className="h-4 w-4" />
+          icon: <CreditCardIcon className="h-4 w-4" />,
         };
       default:
         return {
           color: "bg-gray-500",
           text: "text-gray-50",
           label: status,
-          icon: <TruckIcon className="h-4 w-4" />
+          icon: <TruckIcon className="h-4 w-4" />,
         };
+    }
+  };
+
+  // Hàm hủy đơn hàng
+  const handleCancelOrder = async (orderId: string) => {
+    setIsCancelling(orderId);
+    try {
+      const response = await axiosClient.post(`/api/cancel/${orderId}`);
+      if (response.data.success) {
+        // Cập nhật trạng thái đơn hàng trong UI
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order.order_id === orderId
+              ? {
+                  ...order,
+                  status: "cancelled",
+                  payment: { ...order.payment!, payment_status: "cancelled" },
+                }
+              : order
+          )
+        );
+        alert("Đơn hàng đã được hủy thành công!");
+      } else {
+        alert(response.data.message || "Không thể hủy đơn hàng.");
+      }
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      alert("Đã xảy ra lỗi khi hủy đơn hàng.");
+    } finally {
+      setIsCancelling(null);
     }
   };
 
@@ -185,8 +213,8 @@ const OrderHistory: React.FC = () => {
               <ShoppingBagIcon className="h-16 w-16 mx-auto text-gray-400 mb-4" />
               <h2 className="text-xl font-semibold text-gray-800 mb-2">Chưa có đơn hàng nào</h2>
               <p className="text-gray-600 mb-6">Bạn chưa có đơn hàng nào trong lịch sử mua sắm.</p>
-              <a 
-                href="/" 
+              <a
+                href="/"
                 className="inline-block px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-300 shadow-sm hover:shadow"
               >
                 Khám phá sản phẩm
@@ -197,8 +225,12 @@ const OrderHistory: React.FC = () => {
               {orders.map((order, index) => {
                 const orderIndex = (currentPage - 1) * perPage + index + 1;
                 const isExpanded = expandedOrders.includes(order.order_id);
-                const statusInfo = getStatusInfo(orders[index]);
+                const statusInfo = getStatusInfo(order);
                 const orderDate = new Date(order.created_at);
+
+                const canCancel =
+                  order.payment?.method === "cash_on_delivery" &&
+                  order.payment?.payment_status === "pending";
 
                 return (
                   <div
@@ -209,8 +241,12 @@ const OrderHistory: React.FC = () => {
                       <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-lg font-semibold text-gray-800">Đơn hàng #{order.order_id.slice(-6)}</span>
-                            <div className={`inline-flex items-center px-3 py-1 ${statusInfo.color} ${statusInfo.text} text-xs font-medium rounded-full gap-1`}>
+                            <span className="text-lg font-semibold text-gray-800">
+                              Đơn hàng #{order.order_id.slice(-6)}
+                            </span>
+                            <div
+                              className={`inline-flex items-center px-3 py-1 ${statusInfo.color} ${statusInfo.text} text-xs font-medium rounded-full gap-1`}
+                            >
                               {statusInfo.icon}
                               <span>{statusInfo.label}</span>
                             </div>
@@ -221,12 +257,12 @@ const OrderHistory: React.FC = () => {
                               {orderDate.toLocaleDateString("vi-VN", {
                                 day: "2-digit",
                                 month: "2-digit",
-                                year: "numeric"
-                              })}
-                              {" - "}
+                                year: "numeric",
+                              })}{" "}
+                              -{" "}
                               {orderDate.toLocaleTimeString("vi-VN", {
                                 hour: "2-digit",
-                                minute: "2-digit"
+                                minute: "2-digit",
                               })}
                             </span>
                           </div>
@@ -273,12 +309,13 @@ const OrderHistory: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Chi tiết thanh toán */}
                     {isExpanded && (order.payment || order.payment_details) && (
                       <div className="bg-indigo-50 border-t border-indigo-100">
                         <div className="p-5">
-                          <h3 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-4">Chi tiết thanh toán</h3>
-                          
+                          <h3 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-4">
+                            Chi tiết thanh toán
+                          </h3>
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {order.payment && (
                               <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -298,8 +335,23 @@ const OrderHistory: React.FC = () => {
                                   {order.payment.transaction_id && (
                                     <div className="flex justify-between">
                                       <span className="text-gray-600">Mã giao dịch:</span>
-                                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-800">{order.payment.transaction_id}</span>
+                                      <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded text-gray-800">
+                                        {order.payment.transaction_id}
+                                      </span>
                                     </div>
+                                  )}
+                                  {canCancel && (
+                                    <button
+                                      onClick={() => handleCancelOrder(order.order_id)}
+                                      disabled={isCancelling === order.order_id}
+                                      className={`mt-4  py-2 rounded-lg font-medium transition-all duration-200 ${
+                                        isCancelling === order.order_id
+                                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                          : "bg-red-500 text-white"
+                                      }`}
+                                    >
+                                      {isCancelling === order.order_id ? "Đang hủy..." : "Hủy đơn hàng"}
+                                    </button>
                                   )}
                                 </div>
                               </div>
@@ -341,7 +393,6 @@ const OrderHistory: React.FC = () => {
                 );
               })}
 
-              {/* Pagination Controls - Redesigned */}
               {totalPages > 1 && (
                 <div className="mt-8">
                   <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
@@ -354,7 +405,7 @@ const OrderHistory: React.FC = () => {
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
                     >
-                      &larr; Trang trước
+                      ← Trang trước
                     </button>
                     
                     <div className="flex justify-center items-center">
@@ -385,7 +436,7 @@ const OrderHistory: React.FC = () => {
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
                     >
-                      Trang sau &rarr;
+                      Trang sau →
                     </button>
                   </div>
                 </div>

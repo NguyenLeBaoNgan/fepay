@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import Hero from "@/components/Hero";
 interface Product {
   id: number;
   name: string;
@@ -205,6 +206,8 @@ const ProductList: React.FC = () => {
     return <p className="text-red-500 text-center text-lg py-10">{error}</p>;
 
   return (
+    <>
+    <Hero/>
     <div className="min-h-screen container mx-auto bg-gradient-to-br from-gray-100 via-white to-blue-50 px-4 py-8 md:px-6 lg:px-8">
 
       <motion.h1
@@ -441,6 +444,7 @@ const ProductList: React.FC = () => {
   </div>
 )}
     </div>
+    </>
   );
 };
 

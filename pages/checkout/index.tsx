@@ -133,7 +133,7 @@ const CheckoutPage: React.FC = () => {
       });
 
       if (paymentResponse.data.success) {
-        setPaymentId(paymentResponse.data.payment_id);
+        setPaymentId(paymentResponse.data.payment?.id ||paymentResponse.data.payment_id);
         if (selectedMethod === "bank_transfer") {
           setShowDialog(true);
           if (paymentResponse.data.transaction_id) {
