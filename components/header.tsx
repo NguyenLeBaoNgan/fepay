@@ -1,18 +1,18 @@
-// Header.tsx (giữ nguyên phần lớn mã của bạn, chỉ kiểm tra lại)
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Moon, Sun, Search, LogOut } from "lucide-react";
+import { Moon, Sun, Search, LogOut, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import apiClient from "@/utils/axiosClient";
 import { useAuth } from "@/components/AuthContext";
+import { cn } from "@/lib/utils";
 
 function getTokenFromCookie(): string | null {
   const cookies = document.cookie.split("; ");
-  const tokenCookie = cookies.find((row) => row.startsWith("token="));
+  const tokenCookie = cookies.find((row) => row.startsWith("auth_token=")); // Thay 'token=' bằng 'auth_token='
   return tokenCookie ? tokenCookie.split("=")[1] : null;
 }
 
@@ -27,17 +27,42 @@ const Header: React.FC = () => {
   const [exactMatch, setExactMatch] = useState<{ id: string; name: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>(auth?.user?.name || ""); // Lấy từ auth.user nếu có
 
-  // Debug trạng thái trong Header
   useEffect(() => {
-    console.log("Header: auth.isLoggedIn:", auth?.isLoggedIn);
-  }, [auth?.isLoggedIn]);
+    const fetchUser = async () => {
+      const token = getTokenFromCookie();
+      console.log("Header: Token from cookie:", token);
+      console.log("Header: auth.isLoggedIn:", auth?.isLoggedIn);
+      console.log("Header: auth.user:", auth?.user);
+      if (token && auth?.isLoggedIn) {
+        try {
+          const response = await apiClient.get("/api/users", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log("Header: User data from API:", response.data);
+          setUserName(response.data.name || "User");
+        } catch (err: any) {
+          console.error("Header: Fetch user failed:", err.response?.data || err.message);
+          setUserName("User");
+        }
+      } else {
+        console.log("Header: No token or not logged in");
+      }
+    };
+    // Nếu auth.user đã có name, không cần gọi API
+    if (!auth?.user?.name) {
+      fetchUser();
+    } else {
+      setUserName(auth.user.name);
+    }
+  }, [auth?.isLoggedIn, auth?.user]);
 
   const handleLogout = async () => {
     try {
       const response = await apiClient.post("/api/logout");
       if (response.status === 200) {
-        document.cookie = "token=; Max-Age=0; path=/;";
+        document.cookie = "auth_token=; Max-Age=0; path=/;"; // Thay 'token=' bằng 'auth_token='
         auth?.setIsLoggedIn(false);
         toast({
           title: "Logged out",
@@ -147,18 +172,42 @@ const Header: React.FC = () => {
             </Button>
 
             {auth?.isLoggedIn ? (
-              <>
-                <Button variant="ghost" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </Button>
-                <Button asChild>
-                  <Link href="/profile">Profile</Link>
-                </Button>
-                <Button>
-                  <Link href="/cart">Cart</Link>
-                </Button>
-              </>
+              <div className="relative group">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center cursor-pointer">
+                  <span className="text-lg font-semibold text-indigo-600">
+                    {userName ? userName.charAt(0).toUpperCase() : "U"}
+                  </span>
+                </div>
+                <div
+                  className={cn(
+                    "absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10",
+                    "opacity-0 invisible group-hover:opacity-100 group-hover:visible",
+                    "transition-all duration-200 ease-in-out"
+                  )}
+                >
+                  <Link
+                    href="/profile"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/settings"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              </div>
             ) : (
               <>
                 <Button variant="ghost" asChild>
@@ -167,11 +216,11 @@ const Header: React.FC = () => {
                 <Button asChild>
                   <Link href="/auth/register">Register</Link>
                 </Button>
-                <Button>
-                  <Link href="/cart">Cart</Link>
-                </Button>
               </>
             )}
+            <Button>
+              <Link href="/cart">Cart</Link>
+            </Button>
           </div>
         </div>
       </div>

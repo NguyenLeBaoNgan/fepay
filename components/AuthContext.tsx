@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { loginUser, logoutUser, registerUser } from "@/service/authService";
-
+import Cookies from "js-cookie"; 
+import axiosClient from "@/utils/axiosClient"; 
 interface AuthContextType {
   user: any;
   isLoggedIn: boolean;
@@ -21,12 +22,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<any>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Thêm state isLoggedIn
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
+ 
+  const restoreAuthState = async () => {
+    const token = Cookies.get("auth_token"); 
+    if (token) {
+      try {
+      
+        const response = await axiosClient.get("/api/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUser(response.data);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error("Failed to restore auth state:", error);
+        Cookies.remove("auth_token");
+        setUser(null);
+        setIsLoggedIn(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    restoreAuthState();
+  }, []);
 
   const login = async (email: string, password: string) => {
     const userData = await loginUser(email, password);
     setUser(userData);
-    setIsLoggedIn(true); // Đánh dấu trạng thái đăng nhập thành công
+    setIsLoggedIn(true);
+  
+    if (userData.token) {
+      Cookies.set("auth_token", userData.token, { expires: 7 }); 
+    }
   };
 
   const register = async (
@@ -42,13 +73,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       password_confirmation
     );
     setUser(userData);
-    setIsLoggedIn(true); // Đánh dấu trạng thái đăng ký thành công
+    setIsLoggedIn(true);
+
+    if (userData.token) {
+      Cookies.set("auth_token", userData.token, { expires: 7 });
+    }
   };
 
   const logout = async () => {
     await logoutUser();
     setUser(null);
-    setIsLoggedIn(false); // Đánh dấu trạng thái đăng xuất
+    setIsLoggedIn(false);
+    Cookies.remove("auth_token"); 
   };
 
   return (
@@ -60,4 +96,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

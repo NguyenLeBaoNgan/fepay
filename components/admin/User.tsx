@@ -21,7 +21,6 @@ const User: React.FC<UserProps> = ({ users, onEdit, onDelete }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [localUsers, setLocalUsers] = useState<User[]>(users);
 
-  // Đồng bộ users từ props nếu nó thay đổi bên ngoài
   React.useEffect(() => {
     setLocalUsers(users);
   }, [users]);
@@ -40,35 +39,42 @@ const User: React.FC<UserProps> = ({ users, onEdit, onDelete }) => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between mb-4">
+    <div className="p-6 min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Quản lý người dùng</h1>
         <button
           onClick={handleOpenModal}
-          className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200"
+          className="bg-indigo-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-200 ease-in-out"
         >
           Thêm người dùng
         </button>
       </div>
 
-      <DataTable
-        title="Danh sách người dùng"
-        data={modifiedUsers}
-        columns={[
-          { key: "name", label: "Tên người dùng" },
-          { key: "email", label: "Email" },
-          { key: "roles", label: "Vai trò" },
-          { key: "status", label: "Trạng thái" },
-        ]}
-        onEdit={onEdit}
-        onDelete={onDelete}
-      />
+      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+        <DataTable
+          title="User"
+          data={modifiedUsers}
+          columns={[
+            { key: "name", label: "Tên người dùng" },
+            { key: "email", label: "Email" },
+            { key: "roles", label: "Vai trò" },
+            { key: "status", label: "Trạng thái" },
+          ]}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
 
       {isModalOpen && (
-        <AddUser
-          setUsers={setLocalUsers}
-          users={localUsers}
-          onClose={handleCloseModal}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <AddUser
+              setUsers={setLocalUsers}
+              users={localUsers}
+              onClose={handleCloseModal}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

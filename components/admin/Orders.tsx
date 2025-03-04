@@ -91,7 +91,7 @@ const OrdersPage: React.FC = () => {
   ];
 
   const modifiedData = orders.map(order => ({
-    id: order.id,
+    id: `#${order.id.slice(-5)}`,
     user: order.user || "Không xác định",
     total_amount: order.total_amount,
     status: (

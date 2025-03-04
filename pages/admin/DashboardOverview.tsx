@@ -44,10 +44,19 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     axiosClient
       .get(`/api/revenue`, { params: { year } })
       .then((response) => {
-        const formattedData = response.data.monthly_revenue.map((item: any) => ({
-          month: monthNames[item.month - 1],
-          total: item.total,
-        }));
+        const formattedData = Array(12)
+          .fill(null)
+          .map((_, index) => ({
+            month: monthNames[index],
+            total: 0, 
+          }));
+  
+     
+        response.data.monthly_revenue.forEach((item: any) => {
+          const monthIndex = item.month - 1;
+          formattedData[monthIndex].total = item.total;
+        });
+  
         setMonthlyRevenue(formattedData);
   
         const currentMonthData = response.data.monthly_transactions.find(

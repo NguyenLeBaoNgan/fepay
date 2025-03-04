@@ -81,7 +81,7 @@ const { login, setIsLoggedIn } = auth;
       if (role.includes("admin")) {
         router.push("/admin/AdminDashboard");
       } else {
-        router.push("/profile");
+        router.push("/");
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : "Login failed");
