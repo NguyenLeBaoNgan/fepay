@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosClient from "@/utils/axiosClient";
+import { toast } from "react-toastify";
 
 interface Category {
   id: string;
@@ -135,8 +136,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       });
     } catch (error) {
       console.error("Error adding product:", error);
-      alert("Đã xảy ra lỗi khi thêm sản phẩm.");
+      alert("Đã có sản phẩm. Vui lòng kiểm tra lại!");
     }
+   
   };
 
   const handleCancel = () => {

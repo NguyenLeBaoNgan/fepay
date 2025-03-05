@@ -35,7 +35,10 @@ const Product: React.FC<ProductProps> = ({ products, onEdit, onDelete }) => {
   const handleAddProduct = (newProduct: Product) => {
     setProductList([...productList, newProduct]);
   };
-
+  // const modifiedProduct = productList.map((products) => ({
+  //   ...products,
+  //   id: `#${products.id.toString().slice(-5)}`, 
+  // }));
   return (
     <div>
       <div className="flex justify-between mb-4">
@@ -52,6 +55,7 @@ const Product: React.FC<ProductProps> = ({ products, onEdit, onDelete }) => {
         title="Products"
         data={productList}
         columns={[
+          // {key: "id", label: "ID" },
           { key: "name", label: "Product Name" },
           { key: "description", label: "Description" },
           { key: "price", label: "Price" },

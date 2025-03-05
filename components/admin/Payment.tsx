@@ -179,7 +179,7 @@ const PaymentPage: React.FC = () => {
                 </span>
               </p>
               <p>
-                <span className="font-semibold">Mã Giao Dịch:</span> {`#${selectedPayment.transaction_id.slice(-5)}`}
+                <span className="font-semibold">Mã Giao Dịch:</span> {`#${selectedPayment.transaction_id.toString().slice(-5)}`}
               </p>
               <p>
                 <span className="font-semibold">Ngày Tạo:</span>{" "}
