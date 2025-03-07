@@ -2,7 +2,7 @@
 
 const Hero = () => {
   return (
-    <section className="relative w-full text-black py-16">
+    <section className="relative w-full text-gray-900 dark:text-white py-16">
       <div className="container mx-auto flex flex-col-reverse lg:flex-row items-center justify-between px-6 lg:px-12">
         <div className="lg:w-1/2 text-center lg:text-left">
           <div className="bg-blue-600 text-white inline-block px-4 py-2 rounded-lg text-sm font-semibold">
@@ -13,7 +13,7 @@ const Hero = () => {
             <br />
             <span className="text-blue-400"> dolor sit amet</span>
           </h1>
-          <p className="mt-4 text-lg text-black">
+          <p className="mt-4 text-lg text-gray-900 dark:text-white">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut

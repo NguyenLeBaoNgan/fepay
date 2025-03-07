@@ -128,7 +128,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
+    <div className="min-h-screen flex bg-gray-50 ">
       <Sidebar
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}

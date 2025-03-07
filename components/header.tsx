@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Moon, Sun, Search, LogOut, User, Settings } from "lucide-react";
+import { Moon, Sun, Search, LogOut, User, Settings, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from "next-themes";
@@ -123,6 +123,12 @@ const Header: React.FC = () => {
     }
   };
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   return (
     <header className="bg-background border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -218,9 +224,11 @@ const Header: React.FC = () => {
                 </Button>
               </>
             )}
-            <Button>
-              <Link href="/cart">Cart</Link>
-            </Button>
+           <Button variant="outline" size="icon">
+      <Link href="/cart">
+        <ShoppingCart className="w-5 h-5" />
+      </Link>
+    </Button>
           </div>
         </div>
       </div>

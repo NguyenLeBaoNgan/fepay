@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import axiosClient from "@/utils/axiosClient";
-import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaEdit, FaTrash, FaEye, FaFilter } from "react-icons/fa";
+import DatePicker from "react-datepicker";
 
 interface OrderItem {
   id: string;
@@ -26,7 +27,8 @@ const OrdersPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showDialog, setShowDialog] = useState(false);
-
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [startDate, endDate] = dateRange;
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -46,18 +48,18 @@ const OrdersPage: React.FC = () => {
     }
   };
 
-  const handleEditStatus = async (id: string, newStatus: Order["status"]) => {
-    try {
-      await axiosClient.put(`/api/orders/${id}`, { status: newStatus });
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order.id === id ? { ...order, status: newStatus } : order
-        )
-      );
-    } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
-    }
-  };
+  // const handleEditStatus = async (id: string, newStatus: Order["status"]) => {
+  //   try {
+  //     await axiosClient.put(`/api/orders/${id}`, { status: newStatus });
+  //     setOrders(prevOrders =>
+  //       prevOrders.map(order =>
+  //         order.id === id ? { ...order, status: newStatus } : order
+  //       )
+  //     );
+  //   } catch (error) {
+  //     console.error("Lỗi khi cập nhật trạng thái:", error);
+  //   }
+  // };
 
   const handleDelete = async (id: string) => {
     try {
@@ -77,7 +79,26 @@ const OrdersPage: React.FC = () => {
     setShowDialog(false);
     setSelectedOrder(null);
   };
-
+  const filteredOrders = orders.filter((order) => {
+    const orderDate = new Date(order.created_at);
+  
+    const adjustedStartDate = startDate ? new Date(startDate) : null;
+    let adjustedEndDate = endDate ? new Date(endDate) : null;
+  
+    // Nếu chỉ chọn 1 ngày, set cả startDate và endDate thành ngày đó
+    if (adjustedStartDate && !adjustedEndDate) {
+      adjustedEndDate = new Date(adjustedStartDate);
+    }
+  
+    // Set giờ để lấy đủ dữ liệu trong ngày
+    if (adjustedStartDate) adjustedStartDate.setHours(0, 0, 0, 0);
+    if (adjustedEndDate) adjustedEndDate.setHours(23, 59, 59, 999);
+  
+    return (
+      (!adjustedStartDate || orderDate >= adjustedStartDate) &&
+      (!adjustedEndDate || orderDate <= adjustedEndDate)
+    );
+  });
   if (loading) return <div>Đang tải dữ liệu...</div>;
   if (error) return <div>Lỗi: {error}</div>;
 
@@ -90,22 +111,23 @@ const OrdersPage: React.FC = () => {
     { key: "actions", label: "Thao Tác" },
   ];
 
-  const modifiedData = orders.map(order => ({
+  const modifiedData = filteredOrders.map((order) => ({
     id: `#${order.id.slice(-5)}`,
     user: order.user || "Không xác định",
     total_amount: order.total_amount,
-    status: (
-      <select
-        value={order.status.toLocaleLowerCase()}
-        onChange={(e) => handleEditStatus(order.id, e.target.value as Order["status"])}
-        className="border p-1 rounded"
-      >
-        <option value="paid">Paid</option>
-        <option value="unpaid">Unpaid</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="refunded">Refunded</option>
-      </select>
-    ),
+    status: order.status,
+    // (
+    //   <select
+    //     value={order.status.toLocaleLowerCase()}
+    //     onChange={(e) => handleEditStatus(order.id, e.target.value as Order["status"])}
+    //     className="border p-1 rounded"
+    //   >
+    //     <option value="paid">Paid</option>
+    //     <option value="unpaid">Unpaid</option>
+    //     <option value="cancelled">Cancelled</option>
+    //     <option value="refunded">Refunded</option>
+    //   </select>
+    // ),
     created_at: order.created_at,
     actions: (
       <div className="flex gap-4">
@@ -118,9 +140,23 @@ const OrdersPage: React.FC = () => {
       </div>
     ),
   }));
-
+ 
   return (
     <div>
+      <div className="mb-4 flex items-center gap-4">
+         <FaFilter className="text-muted-foreground" />
+        <DatePicker
+          selectsRange
+          startDate={startDate}
+          endDate={endDate}
+          onChange={(update: [Date | null, Date | null]) => {
+            setDateRange(update);
+          }}
+          placeholderText="Chọn khoảng thời gian"
+          className="w-[220px] border border-border rounded-md p-2 text-sm"
+          isClearable={true}
+        />
+      </div>
       <DataTable title="Danh Sách Đơn Hàng" data={modifiedData} columns={columns} />
 
       {showDialog && selectedOrder && (

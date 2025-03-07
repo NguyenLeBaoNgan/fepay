@@ -22,7 +22,7 @@ const DataTable: React.FC<DataTableProps> = ({ title, data, columns, onEdit, onD
   return (
     <>
 
-      <div className="mt-8 max-w-6xl mx-auto">
+      <div className="mt-8 max-w-6xl mx-auto ">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">{title}</h2>
         <Card className="shadow-md p-4">
           <Table>

@@ -80,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({ selectedTab, setSelectedTab, onToggle
             className={cn(
               "w-full py-2 md:py-3 px-2 md:px-4 rounded-xl text-xs md:text-sm font-medium",
               "hover:bg-white/10 hover:text-white transition-all duration-200",
-              selectedTab === tab && "bg-white/20 text-white shadow-inner font-semibold",
+              selectedTab === tab && "bg-gradient-to-r from-gray-200 to-gray-400 text-white shadow-inner font-semibold",
               isCollapsed ? "justify-center" : "justify-start"
             )}
             onClick={() => setSelectedTab(tab)}
