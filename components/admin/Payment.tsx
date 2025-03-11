@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import axiosClient from "@/utils/axiosClient";
-import { FaEye, FaTrash } from "react-icons/fa";
+import { FaEye, FaFilter, FaTrash } from "react-icons/fa";
 import { cn } from "@/lib/utils";
 import { toast } from "react-toastify";
 
@@ -35,6 +35,8 @@ const PaymentPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
 
   useEffect(() => {
     fetchPayments();
@@ -96,6 +98,15 @@ const PaymentPage: React.FC = () => {
   if (loading) return <div className="text-center py-10">Đang tải dữ liệu...</div>;
   if (error) return <div className="text-center py-10 text-red-500">Lỗi: {error}</div>;
 
+  const filteredPayments = payments.filter((payment) => {
+    const matchesMethod = selectedMethod ? payment.method === selectedMethod : true;
+    const matchesDate = selectedDate
+      ? new Date(payment.created_at).toISOString().split("T")[0] === selectedDate
+      : true;
+    return matchesMethod && matchesDate;
+  });
+
+
   const columns = [
     { key: "id", label: "ID" },
     { key: "order_id", label: "Mã Đơn Hàng" },
@@ -106,7 +117,7 @@ const PaymentPage: React.FC = () => {
     { key: "actions", label: "Thao Tác" },
   ];
 
-  const modifiedData = payments.map((payment) => ({
+  const modifiedData = filteredPayments.map((payment) => ({
     id: `#${payment.id.slice(-5)}`,
     order_id: `#${payment.order_id.slice(-5)}`,
     payment_amount: parseFloat(payment.payment_amount).toLocaleString() + " VND",
@@ -144,6 +155,20 @@ const PaymentPage: React.FC = () => {
 
   return (
     <div className="p-6">
+      <div className="mb-4 flex flex-wrap gap-4 justify-end items-center">
+         <FaFilter className="text-muted-foreground" />
+        <select className="border p-2 rounded" value={selectedMethod} onChange={(e) => setSelectedMethod(e.target.value)}>
+          <option value="">Tất Cả Phương Thức</option>
+          <option value="cash_on_delivery">COD</option>
+          <option value="bank_transfer">Chuyển Khoản Ngân Hàng</option>
+        </select>
+
+        <input type="date" className="border p-2 rounded" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+
+        <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => { setSelectedMethod(""); setSelectedDate(""); }}>
+          Xóa Lọc
+        </button>
+      </div>
       <DataTable title="Danh Sách Thanh Toán" data={modifiedData} columns={columns} />
 
       {showDialog && selectedPayment && (

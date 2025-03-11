@@ -13,6 +13,7 @@ interface User {
   name: string;
   email: string;
   roles: string[];
+  password: string;
   status: string;
 }
 
@@ -33,6 +34,7 @@ const AddUser: React.FC<AddUserProps> = ({ setUsers, users, onClose }) => {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [status, setStatus] = useState<string>("active");
   const [loading, setLoading] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>("");
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -57,6 +59,7 @@ const AddUser: React.FC<AddUserProps> = ({ setUsers, users, onClose }) => {
       const newUserData = {
         name: name.trim(),
         email: email.trim(),
+        password,
         status,
         roles: selectedRole ? [selectedRole] : [],
       };
@@ -70,6 +73,7 @@ const AddUser: React.FC<AddUserProps> = ({ setUsers, users, onClose }) => {
         id: response.data.id || Date.now().toString(), 
         name: response.data.name || newUserData.name,
         email: response.data.email || newUserData.email,
+        password: response.data.password || newUserData.password,
         roles: response.data.roles || newUserData.roles,
         status: response.data.status || newUserData.status, 
       };
@@ -116,6 +120,17 @@ const AddUser: React.FC<AddUserProps> = ({ setUsers, users, onClose }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Nhập email"
+              className="w-full border-gray-300 focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Nhập password"
               className="w-full border-gray-300 focus:ring-2 focus:ring-green-500"
             />
           </div>

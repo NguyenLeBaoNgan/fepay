@@ -136,7 +136,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
       });
     } catch (error) {
       console.error("Error adding product:", error);
-      alert("Đã có sản phẩm. Vui lòng kiểm tra lại!");
+      alert("Có lỗi xảy ra khi thêm sản phẩm.");
     }
    
   };

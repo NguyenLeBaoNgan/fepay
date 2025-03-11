@@ -8,6 +8,7 @@ interface User {
   name: string;
   email: string;
   roles: string[];
+  password: string;
   status: string;
   render?: (row: any) => React.ReactNode;
 }
@@ -23,7 +24,7 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
   const [localUsers, setLocalUsers] = useState<User[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
   useEffect(() => {
     setLocalUsers(initialUsers);
   }, [initialUsers]);
@@ -69,10 +70,10 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
     debouncedSearch(query); // Gọi API tìm kiếm với debounce
   };
 
-  const modifiedUsers = localUsers.map((user) => ({
-    ...user,
-    roles: user.roles.join(", "),
-  }));
+  // const modifiedUsers = localUsers.map((user) => ({
+  //   ...user,
+  //   roles: user.roles.join(", "),
+  // }));
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -81,7 +82,28 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+  const togglePasswordVisibility = (id: string) => {
+    setVisiblePasswords((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
+  const modifiedUsers = localUsers.map((user) => ({
+    ...user,
+    roles: user.roles.join(", "),
+    password: (
+      <div className="flex items-center">
+        {visiblePasswords[user.id] ? user.password : "••••••••"}
+        <button
+          onClick={() => togglePasswordVisibility(user.id)}
+          className="ml-2 text-indigo-500 hover:text-indigo-700 focus:outline-none"
+        >
+          {visiblePasswords[user.id] ? "👁️" : "🔒"}
+        </button>
+      </div>
+    ),
+  }));
   return (
     <div className="p-4 md:p-6 min-h-screen bg-gray-100">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -160,6 +182,7 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
               columns={[
                 { key: "name", label: "Tên người dùng" },
                 { key: "email", label: "Email" },
+                { key:"password", label: "Mật khẩu"},
                 { key: "roles", label: "Vai trò" },
                 { key: "status", label: "Trạng thái" },
               ]}

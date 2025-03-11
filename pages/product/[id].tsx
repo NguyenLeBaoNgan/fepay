@@ -155,6 +155,8 @@ const ProductDetail: React.FC = () => {
           }
 
           localStorage.setItem("cart", JSON.stringify(existingCart));
+          // Cập nhật giỏ hàng trên tất cả các tab
+          window.dispatchEvent(new Event("storage"));
           alert("Product added to cart!");
           setShowForm(false);
         }

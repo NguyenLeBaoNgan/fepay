@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DataTable from "./DataTable";
 import AddProductModal from "./product/add";
 
@@ -34,13 +34,14 @@ const Product: React.FC<ProductProps> = ({ products, onEdit, onDelete }) => {
   const handleAddProduct = (newProduct: Product) => {
     setProductList([...productList, newProduct]);
   };
-
+  useEffect(() => {
+    setProductList(products);
+  }, [products]);
   const filteredProducts = productList.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.price.toString().includes(searchTerm)
   );
-
 
   const modifiedProduct = filteredProducts.map((product) => ({
     ...product,
@@ -57,11 +58,10 @@ const Product: React.FC<ProductProps> = ({ products, onEdit, onDelete }) => {
             type="text"
             placeholder="Search by name or price..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} 
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
-  
           <button
             onClick={handleAddProductClick}
             className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200"

@@ -3,6 +3,7 @@ import { loginUser, logoutUser, registerUser } from "@/service/authService";
 import Cookies from "js-cookie"; 
 import axiosClient from "@/utils/axiosClient"; 
 interface AuthContextType {
+  [x: string]: any;
   user: any;
   isLoggedIn: boolean;
   setIsLoggedIn: (status: boolean) => void;

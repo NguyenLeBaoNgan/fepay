@@ -4,14 +4,26 @@ import axiosClient from "@/utils/axiosClient";
 import { AxiosError } from "axios"; // Import AxiosError
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface User {
   id: number;
   name: string;
   email: string;
+  password: string;
   status: string;
   roles: string[];
 }
@@ -27,7 +39,12 @@ interface EditUserProps {
   setUsers: (users: User[]) => void;
 }
 
-const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users, setUsers }) => {
+const EditUser: React.FC<EditUserProps> = ({
+  editingUser,
+  setEditingUser,
+  users,
+  setUsers,
+}) => {
   const [roles, setRoles] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [status, setStatus] = useState<string>("active");
@@ -45,7 +62,9 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
       } catch (error) {
         const axiosError = error as AxiosError<ErrorResponse>;
         console.error("Error fetching roles:", axiosError);
-        toast.error(axiosError.response?.data?.message || "Lỗi lấy danh sách vai trò!");
+        toast.error(
+          axiosError.response?.data?.message || "Lỗi lấy danh sách vai trò!"
+        );
       }
     };
 
@@ -61,28 +80,46 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
 
     setLoading(true);
     try {
-      const updatedData = {
+      const updatedData: {
+        name: string;
+        email: string;
+        status: string;
+        roles: string[];
+        password?: string;
+      } = {
         name: editingUser.name.trim(),
         email: editingUser.email.trim(),
         status,
         roles: selectedRole ? [selectedRole] : [],
       };
-
+      if (editingUser.password) {
+        updatedData.password = editingUser.password.trim();
+      }
       if (!updatedData.name || !updatedData.email) {
         throw new Error("Tên và email là bắt buộc!");
       }
 
-      const response = await axiosClient.post(`/api/updateuser/${editingUser.id}`, updatedData);
-      const updatedUser = { ...response.data, roles: response.data.roles || editingUser.roles };
+      const response = await axiosClient.post(
+        `/api/updateuser/${editingUser.id}`,
+        updatedData
+      );
+      const updatedUser = {
+        ...response.data,
+        roles: response.data.roles || editingUser.roles,
+      };
 
-      setUsers(users.map((user) => (user.id === editingUser.id ? updatedUser : user)));
+      setUsers(
+        users.map((user) => (user.id === editingUser.id ? updatedUser : user))
+      );
       toast.success("Cập nhật người dùng thành công!");
       setEditingUser(null);
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
       console.error("Error updating user:", axiosError);
       toast.error(
-        axiosError.response?.data?.message || axiosError.message || "Lỗi cập nhật người dùng!"
+        axiosError.response?.data?.message ||
+          axiosError.message ||
+          "Lỗi cập nhật người dùng!"
       );
     } finally {
       setLoading(false);
@@ -98,7 +135,9 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
           <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
             <span className="text-blue-500"></span> Chỉnh sửa người dùng
           </h2>
-          <p className="text-sm text-gray-500 mt-1">Cập nhật thông tin người dùng một cách dễ dàng</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Cập nhật thông tin người dùng một cách dễ dàng
+          </p>
         </CardHeader>
 
         <CardContent className="p-6 space-y-6">
@@ -109,7 +148,9 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
             <Input
               id="name"
               value={editingUser.name}
-              onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+              onChange={(e) =>
+                setEditingUser({ ...editingUser, name: e.target.value })
+              }
               placeholder="Nhập tên người dùng"
               className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
@@ -123,8 +164,25 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
               id="email"
               type="email"
               value={editingUser.email}
-              onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+              onChange={(e) =>
+                setEditingUser({ ...editingUser, email: e.target.value })
+              }
               placeholder="Nhập email"
+              className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-gray-700 font-medium">
+              Mật khẩu (để trống nếu không muốn thay đổi)
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              value={editingUser.password || ""}
+              onChange={(e) =>
+                setEditingUser({ ...editingUser, password: e.target.value })
+              }
+              placeholder="Nhập mật khẩu mới"
               className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
             />
           </div>
@@ -134,7 +192,10 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
               Vai trò
             </Label>
             <Select value={selectedRole} onValueChange={setSelectedRole}>
-              <SelectTrigger id="role" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500">
+              <SelectTrigger
+                id="role"
+                className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
+              >
                 <SelectValue placeholder="Chọn vai trò" />
               </SelectTrigger>
               <SelectContent className="bg-white shadow-lg rounded-md">
@@ -149,7 +210,9 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
                     </SelectItem>
                   ))
                 ) : (
-                  <div className="px-4 py-2 text-gray-500">Không có vai trò</div>
+                  <div className="px-4 py-2 text-gray-500">
+                    Không có vai trò
+                  </div>
                 )}
               </SelectContent>
             </Select>
@@ -160,14 +223,23 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
               Trạng thái
             </Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger id="status" className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500">
+              <SelectTrigger
+                id="status"
+                className="w-full border-gray-300 focus:ring-2 focus:ring-blue-500"
+              >
                 <SelectValue placeholder="Chọn trạng thái" />
               </SelectTrigger>
               <SelectContent className="bg-white shadow-lg rounded-md">
-                <SelectItem value="active" className="hover:bg-blue-50 transition-colors duration-150">
+                <SelectItem
+                  value="active"
+                  className="hover:bg-blue-50 transition-colors duration-150"
+                >
                   <span className="text-green-600">●</span> Active
                 </SelectItem>
-                <SelectItem value="locked" className="hover:bg-blue-50 transition-colors duration-150">
+                <SelectItem
+                  value="locked"
+                  className="hover:bg-blue-50 transition-colors duration-150"
+                >
                   <span className="text-red-600">●</span> Locked
                 </SelectItem>
               </SelectContent>
@@ -192,8 +264,18 @@ const EditUser: React.FC<EditUserProps> = ({ editingUser, setEditingUser, users,
           >
             {loading ? (
               <span className="flex items-center gap-2">
-                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
                   <path fill="currentColor" d="M4 12a8 8 0 018-8v8h-8z" />
                 </svg>
                 Đang lưu...
