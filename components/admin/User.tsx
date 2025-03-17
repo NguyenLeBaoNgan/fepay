@@ -110,7 +110,7 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý người dùng</h1>
         <button
           onClick={handleOpenModal}
-          className="w-full md:w-auto bg-indigo-600 text-white py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full md:w-auto bg-black text-white py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           + Thêm người dùng
         </button>

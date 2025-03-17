@@ -64,7 +64,7 @@ const Product: React.FC<ProductProps> = ({ products, onEdit, onDelete }) => {
 
           <button
             onClick={handleAddProductClick}
-            className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200"
+            className="bg-black text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-all duration-200"
           >
             Add Product
           </button>
