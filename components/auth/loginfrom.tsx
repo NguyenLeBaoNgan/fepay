@@ -91,7 +91,7 @@ const { login, setIsLoggedIn } = auth;
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50:bg-dark p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
@@ -159,7 +159,7 @@ const { login, setIsLoggedIn } = auth;
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-center text-gray-500">
             Do not have an account?{" "}
-            <a href="/register" className="text-primary hover:underline">
+            <a href="auth/register" className="text-primary hover:underline">
               Create an account
             </a>
           </div>

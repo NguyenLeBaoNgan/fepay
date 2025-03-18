@@ -49,8 +49,8 @@ const PaymentListener = () => {
 
   return (
     <div>
-      <h3>Trạng thái thanh toán:</h3>
-      <p>{message}</p>
+      <h3 className="text-xl text-red-400">Trạng thái thanh toán: {message}</h3>
+      <br/>
     </div>
   );
 };

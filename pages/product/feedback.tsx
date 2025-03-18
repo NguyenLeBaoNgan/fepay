@@ -105,7 +105,7 @@ const Feedback = ({ productId, onFeedbackUpdate }: FeedbackProps) => {
   };
 
   return (
-    <div className="mt-10 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl shadow-lg p-8 max-w-3xl mx-auto">
+    <div className="mt-10 bg-gradient-to-br  dark:bg-black rounded-2xl shadow-lg p-8 max-w-3xl mx-auto">
       <Card className="border-none shadow-md bg-white overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <CardTitle className="text-2xl font-bold text-center flex items-center justify-center gap-2">
@@ -160,7 +160,7 @@ const Feedback = ({ productId, onFeedbackUpdate }: FeedbackProps) => {
 
       <div className="mt-10">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-gray-800:text-white flex items-center gap-2">
             <ThumbsUp className="w-5 h-5 text-blue-600" />
             <span>Đánh giá từ khách hàng</span>
           </h3>
@@ -204,7 +204,7 @@ const Feedback = ({ productId, onFeedbackUpdate }: FeedbackProps) => {
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <p className="text-gray-800 font-semibold">{fb.user?.name || "Ẩn danh"}</p>
+                        <p className="text-gray-800 dark:text-blue-500 font-semibold">{fb.user?.name || "Ẩn danh"}</p>
                         <span className="text-xs px-2 py-1 bg-gray-100 rounded-full text-gray-600">
                           <Calendar className="inline w-3 h-3 mr-1" />
                           {formatDistanceToNow(new Date(fb.created_at), { addSuffix: true })}
@@ -214,7 +214,7 @@ const Feedback = ({ productId, onFeedbackUpdate }: FeedbackProps) => {
                         {renderStars(fb.rating)}
                         <span className="text-gray-700 ml-2 text-sm font-medium">{fb.rating} sao</span>
                       </div>
-                      <p className="text-gray-700 mt-2 text-base">{fb.comment}</p>
+                      <p className="text-gray-700:text-white mt-2 text-base">{fb.comment}</p>
                     </div>
                   </div>
                 </CardContent>

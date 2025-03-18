@@ -146,11 +146,11 @@ const Transaction = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-black p-4 sm:p-6">
       {/* Header Card */}
-      <Card className="mb-6 shadow-lg border-none bg-white rounded-xl">
+      <Card className="mb-6 shadow-lg border-none bg-white:bg-dark rounded-xl">
         <CardHeader className="border-b border-gray-200">
-          <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800:text-white">
             Danh Sách Giao Dịch
           </CardTitle>
         </CardHeader>
@@ -184,7 +184,7 @@ const Transaction = () => {
             </div>
             <Button
               variant="default"
-              className="w-full sm:w-auto bg-gradient-to-r text-gray-800 text-white font-semibold rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+              className="w-full sm:w-auto bg-gradient-to-r text-gray-800 text-white dark:text-blue-400 font-semibold rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
               onClick={() => setOpenQRDialog(true)}
             >
               <FaQrcode />
@@ -195,7 +195,7 @@ const Transaction = () => {
       </Card>
 
       {/* Transactions Table */}
-      <Card className="shadow-lg border-none bg-white rounded-xl">
+      <Card className="shadow-lg border-none bg-white:bg-dark rounded-xl">
         <CardContent className="p-4 sm:p-6">
           <DataTable title="" data={filteredTransactions} columns={columns} />
         </CardContent>

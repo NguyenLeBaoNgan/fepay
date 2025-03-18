@@ -168,14 +168,14 @@ const ProductDetail: React.FC = () => {
   };
   useEffect(() => {
     if (!productId) return;
-  
+
     const fetchFeedbacks = async () => {
       setFeedbackLoading(true);
       try {
         const response = await axiosClient.get(`/api/feedbacks/${productId}`);
         const feedbackData = Array.isArray(response.data) ? response.data : [];
         setFeedbacks(feedbackData);
-  
+
         if (feedbackData.length > 0) {
           const totalRating = feedbackData.reduce(
             (sum: number, feedback: any) => sum + feedback.rating,
@@ -193,7 +193,7 @@ const ProductDetail: React.FC = () => {
         setFeedbackLoading(false);
       }
     };
-  
+
     fetchFeedbacks();
   }, [productId]);
   const handleFeedbackUpdate = (newFeedbacks: Feedback[]) => {
@@ -219,7 +219,7 @@ const ProductDetail: React.FC = () => {
       <Header />
       <div className="container mx-auto p-6 md:p-8">
         <motion.div
-          className="flex flex-col lg:flex-row items-start bg-white rounded-3xl shadow-xl p-6 md:p-10 transition-all duration-300 hover:shadow-2xl border border-gray-100"
+          className="flex flex-col lg:flex-row items-start bg-white:bg-black rounded-3xl shadow-xl p-6 md:p-10 transition-all duration-300 hover:shadow-2xl border border-gray-100:dark:border-gray-800"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -266,7 +266,7 @@ const ProductDetail: React.FC = () => {
 
             {/* Tên sản phẩm */}
             <motion.h3
-              className="text-3xl font-extrabold text-gray-900 mt-2 mb-3"
+              className="text-3xl font-extrabold text-gray-900:text-white mt-2 mb-3"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
@@ -276,27 +276,29 @@ const ProductDetail: React.FC = () => {
 
             {/* Đánh giá */}
             <div className="flex items-center gap-1 mb-5">
-  {[1, 2, 3, 4, 5].map((star) => (
-    <svg
-      key={star}
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill={star <= Math.round(averageRating) ? "#FFC107" : "none"}
-      stroke={star <= Math.round(averageRating) ? "#FFC107" : "#E5E7EB"}
-      strokeWidth="2"
-      className="transition-all duration-300"
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  ))}
-  <span className="text-sm text-gray-500 ml-2">
-    {feedbacks.length > 0
-      ? `${averageRating.toFixed(1)} (${feedbacks.length} đánh giá)`
-      : "(Chưa có đánh giá)"}
-  </span>
-</div>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <svg
+                  key={star}
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill={star <= Math.round(averageRating) ? "#FFC107" : "none"}
+                  stroke={
+                    star <= Math.round(averageRating) ? "#FFC107" : "#E5E7EB"
+                  }
+                  strokeWidth="2"
+                  className="transition-all duration-300"
+                >
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              ))}
+              <span className="text-sm text-gray-500 ml-2">
+                {feedbacks.length > 0
+                  ? `${averageRating.toFixed(1)} (${feedbacks.length} đánh giá)`
+                  : "(Chưa có đánh giá)"}
+              </span>
+            </div>
 
             <div className="relative">
               <motion.p
@@ -460,7 +462,10 @@ const ProductDetail: React.FC = () => {
           </div>
         </motion.div>
 
-        <FeedbackForm productId={product?.id || 0} onFeedbackUpdate={handleFeedbackUpdate} />
+        <FeedbackForm
+          productId={product?.id || 0}
+          onFeedbackUpdate={handleFeedbackUpdate}
+        />
       </div>
       {showForm && (
         <Dialog open={showForm} onOpenChange={setShowForm}>
@@ -468,7 +473,7 @@ const ProductDetail: React.FC = () => {
             <div className="add-to-cart-form fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"></div>
           </DialogTrigger>
 
-          <DialogContent className="bg-white p-6 rounded-lg shadow-lg">
+          <DialogContent className="bg-white:bg-black p-6 rounded-lg shadow-lg">
             <DialogHeader>
               <h2 className="text-lg font-semibold mb-4">Select Quantity</h2>
             </DialogHeader>

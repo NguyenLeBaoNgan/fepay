@@ -161,7 +161,7 @@ const OrdersPage: React.FC = () => {
 
       {showDialog && selectedOrder && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg w-96">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg w-96">
             <h3 className="text-xl font-semibold mb-4">Chi Tiết Đơn Hàng</h3>
             <p><strong>Tổng Tiền:</strong> {selectedOrder.total_amount}</p>
             <p><strong>Trạng Thái:</strong> {selectedOrder.status}</p>

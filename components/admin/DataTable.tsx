@@ -23,7 +23,7 @@ const DataTable: React.FC<DataTableProps> = ({ title, data, columns, onEdit, onD
     <>
 
       <div className="mt-8 max-w-6xl mx-auto ">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">{title}</h2>
+        <h2 className="text-2xl font-semibold text-gray-800:text-white mb-4">{title}</h2>
         <Card className="shadow-md p-4">
           <Table>
             <TableHeader>
@@ -37,7 +37,7 @@ const DataTable: React.FC<DataTableProps> = ({ title, data, columns, onEdit, onD
             <TableBody>
               {paginatedData.length > 0 ? (
                 paginatedData.map((row) => (
-                  <TableRow key={row.id} className="hover:bg-gray-100">
+                  <TableRow key={row.id} className="hover:bg-gray-100 dark:hover:bg-gray-800">
                     {columns.map((col) => (
                       <TableCell key={col.key}>
                         {col.key === "image" ? (

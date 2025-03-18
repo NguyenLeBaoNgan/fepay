@@ -83,6 +83,24 @@ const Cart: React.FC = () => {
   }, []);
 
   const handleCheckout = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      let count=5;
+      // setError("Vui lòng đăng nhập để tiếp tục thanh toán. Bạn sẽ được chuyển hướng đến trang đăng nhập sau ${count} giây.");
+      const countdownInterval = setInterval(() => {
+        count -= 1;
+        setError(`Vui lòng đăng nhập để tiếp tục thanh toán. Chuyển hướng sau ${count} giây.`);
+        if (count <= 0) {
+          clearInterval(countdownInterval);
+          router.push("auth/login");
+        }
+      }, 1000);
+      // setTimeout(() => {
+      //   router.push("auth/login");
+      // }, 5000);
+      return;
+    }
+
     if (cartItems.length === 0) {
       setError("Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi thanh toán.");
       return;
@@ -114,10 +132,10 @@ const Cart: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50:bg-dark-900">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl">
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+        <div className="bg-white:bg-dark-600 rounded-2xl shadow-lg p-6 md:p-8">
           <div className="flex items-center mb-8">
             <ShoppingCartIcon className="h-8 w-8 text-blue-600 mr-3" />
             <h1 className="text-2xl sm:text-3xl font-bold text-blue-500">
@@ -163,16 +181,16 @@ const Cart: React.FC = () => {
                 <table className="min-w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700:text-white">
                         Sản phẩm
                       </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700:text-white">
                         Giá
                       </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700:text-white">
                         Số lượng
                       </th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700:text-white">
                         Tổng
                       </th>
                       {/* <th className="text-center py-4 px-4 font-semibold text-gray-700">
@@ -191,7 +209,7 @@ const Cart: React.FC = () => {
                             {/* <div className="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center mr-4">
                               <span className="text-gray-400 text-xs">No Image</span>
                             </div> */}
-                            <span className="font-medium text-gray-800">
+                            <span className="font-medium text-gray-800 ">
                               {item.name}
                             </span>
                           </div>
@@ -205,7 +223,7 @@ const Cart: React.FC = () => {
                               onClick={() =>
                                 handleQuantityChange(index, item.quantity - 1)
                               }
-                              className="px-3 py-2 text-gray-600 hover:text-gray-800"
+                              className="px-3 py-2 text-gray-600 hover:text-gray-800 "
                               disabled={item.quantity <= 1}
                             >
                               <MinusIcon className="h-4 w-4" />
@@ -220,7 +238,7 @@ const Cart: React.FC = () => {
                                   parseInt(e.target.value) || 1
                                 )
                               }
-                              className="w-full text-center bg-transparent border-none focus:outline-none p-0"
+                              className="w-full text-center bg-transparent  border-none focus:outline-none p-0"
                             />
                             <button
                               onClick={() =>

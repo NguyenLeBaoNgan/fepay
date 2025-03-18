@@ -105,20 +105,20 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
     ),
   }));
   return (
-    <div className="p-4 md:p-6 min-h-screen bg-gray-100">
+    <div className="p-4 md:p-6 min-h-screen bg-gray-100:bg-dark">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Quản lý người dùng</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900:text-white">Quản lý người dùng</h1>
         <button
           onClick={handleOpenModal}
-          className="w-full md:w-auto bg-black text-white py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full md:w-auto bg-black dark:bg-blue-400 text-white py-2 px-6 rounded-lg shadow-md hover:bg-indigo-700 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           + Thêm người dùng
         </button>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="bg-white:bg-white shadow-md rounded-lg overflow-hidden">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 border-b border-gray-200">
-          <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-2 md:mb-0">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-800:text-white mb-2 md:mb-0">
             Danh sách người dùng
           </h2>
           <div className="relative w-full md:w-72">

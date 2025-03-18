@@ -93,10 +93,10 @@ const AddUser: React.FC<AddUserProps> = ({ setUsers, users, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-md bg-white rounded-xl shadow-2xl transform transition-all duration-300 scale-100">
+      <Card className="w-full max-w-md bg-white:bg-black rounded-xl shadow-2xl transform transition-all duration-300 scale-100">
         <CardHeader className="border-b border-gray-200 pb-4">
-          <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-            <span className="text-green-500"></span> Thêm người dùng mới
+          <h2 className="text-2xl font-semibold flex items-center gap-2">
+            <span className="text-green-500:text-white"></span> Thêm người dùng mới
           </h2>
           <p className="text-sm text-gray-500 mt-1">Tạo người dùng mới nhanh chóng và dễ dàng</p>
         </CardHeader>

@@ -5,7 +5,7 @@ import Footer from "@/components/footer";
 import Cookies from "js-cookie";
 import router from "next/router";
 import PaymentListener from "@/components/PaymentListener";
-
+import { toast } from "react-toastify";
 const CheckoutPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [totalAmount, setTotalAmount] = useState<number>(0);
@@ -100,22 +100,22 @@ const CheckoutPage: React.FC = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^[0-9]{10}$/;
     if (!selectedMethod || !phone || !email || !address) {
-      setMessage("Please fill in all required fields.");
+      toast.error("Vui lòng điền đầy đủ thông tin bắt buộc.");
       setIsProcessing(false);
       return;
     }
     if (!emailRegex.test(email)) {
-      setMessage("Please enter a valid email.");
+      toast.error("Vui lòng nhập email hợp lệ.");
       setIsProcessing(false);
       return;
     }
     if (!phoneRegex.test(phone)) {
-      setMessage("Please enter a valid 10-digit phone number.");
+      toast.error("Vui lòng nhập số điện thoại 10 chữ số hợp lệ.");
       setIsProcessing(false);
       return;
     }
     if (!orderId) {
-      setMessage("Order ID not found. Please try again.");
+      toast.error("Không tìm thấy ID đơn hàng. Vui lòng thử lại.");
       setIsProcessing(false);
       return;
     }
@@ -190,7 +190,7 @@ const CheckoutPage: React.FC = () => {
     <>
       <Header />
       <div className="checkout-container container mx-auto p-6 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Checkout</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-800:text-white">Checkout</h1>
         <PaymentListener />
 
         {/* Thông báo */}
@@ -257,26 +257,26 @@ const CheckoutPage: React.FC = () => {
 
         {/* Chi tiết thanh toán */}
         <div className="payment-details mb-8">
-          <h2 className="text-2xl mb-4 font-semibold text-gray-800">
+          <h2 className="text-2xl mb-4 font-semibold text-gray-800:text-white">
             Payment Details
           </h2>
           <input
             type="text"
-            placeholder="Phone (10 digits)"
+            placeholder="Phone (10 digits)*"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="border p-3 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Email*"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="border p-3 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
             type="text"
-            placeholder="Address"
+            placeholder="Address*"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="border p-3 mb-4 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -291,7 +291,7 @@ const CheckoutPage: React.FC = () => {
 
         {/* Phương thức thanh toán */}
         <div className="payment-methods mb-8">
-          <h2 className="text-2xl mb-4 font-semibold text-gray-800">
+          <h2 className="text-2xl mb-4 font-semibold text-gray-800:text-white">
             Select Payment Method
           </h2>
           <select

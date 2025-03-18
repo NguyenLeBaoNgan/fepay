@@ -198,7 +198,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
                 />
                 <label
                   htmlFor="image-upload"
-                  className="inline-block px-4 py-2 bg-white border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                  className="inline-block px-4 py-2 bg-white dark:text-black border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
                 >
                   Chọn ảnh mới
                 </label>

@@ -201,7 +201,7 @@ const OrderHistory: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="bg-gray-50 min-h-screen py-10">
+      <div className="bg-gray-50:bg-dark min-h-screen py-10">
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="mb-8 text-center md:text-left">
             <h1 className="text-3xl font-bold text-blue-600">
@@ -252,13 +252,13 @@ const OrderHistory: React.FC = () => {
                 return (
                   <div
                     key={order.order_id}
-                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md"
+                    className="bg-white:bg-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md"
                   >
                     <div className="border-b border-gray-100">
                       <div className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-lg font-semibold text-gray-800">
+                            <span className="text-lg font-semibold text-gray-800:text-white">
                               Đơn hàng #{order.order_id.slice(-6)}
                             </span>
                             <div
@@ -318,11 +318,11 @@ const OrderHistory: React.FC = () => {
                                   {item.quantity}x
                                 </span>
                               </div>
-                              <span className="font-medium text-gray-800 truncate max-w-xs">
+                              <span className="font-medium text-gray-800:text-white truncate max-w-xs">
                                 {item.name}
                               </span>
                             </div>
-                            <span className="font-medium text-gray-700">
+                            <span className="font-medium text-gray-700:text-white">
                               {formatCurrency(
                                 parseFloat(item.price) * item.quantity
                               )}

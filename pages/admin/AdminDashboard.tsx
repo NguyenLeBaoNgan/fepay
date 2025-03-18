@@ -128,7 +128,7 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-gray-50 ">
+    <div className="min-h-screen flex bg-gray-50:bg-dark ">
       <Sidebar
         selectedTab={selectedTab}
         setSelectedTab={setSelectedTab}
@@ -200,7 +200,7 @@ const AdminDashboard: React.FC = () => {
                     />
                     <label
                       htmlFor="image-upload"
-                      className="inline-block px-3 md:px-4 py-1 md:py-2 bg-white border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="inline-block px-3 md:px-4 py-1 md:py-2 bg-white border-2 border-gray-300 dark:text-black rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
                     >
                       Chọn ảnh mới
                     </label>

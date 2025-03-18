@@ -130,10 +130,10 @@ const EditUser: React.FC<EditUserProps> = ({
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-md bg-white rounded-xl shadow-2xl transform transition-all duration-300 scale-100 ">
+      <Card className="w-full max-w-md bg-white:bg-dark rounded-xl shadow-2xl transform transition-all duration-300 scale-100 ">
         <CardHeader className="border-b border-gray-200 pb-4">
-          <h2 className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-            <span className="text-blue-500"></span> Chỉnh sửa người dùng
+          <h2 className="text-2xl font-semibold  flex items-center gap-2">
+            <span className="text-blue-500 dark:text-gray-100"></span> Chỉnh sửa người dùng
           </h2>
           <p className="text-sm text-gray-500 mt-1">
             Cập nhật thông tin người dùng một cách dễ dàng
@@ -198,13 +198,13 @@ const EditUser: React.FC<EditUserProps> = ({
               >
                 <SelectValue placeholder="Chọn vai trò" />
               </SelectTrigger>
-              <SelectContent className="bg-white shadow-lg rounded-md">
+              <SelectContent className="bg-white:bg-black shadow-lg rounded-md">
                 {roles.length > 0 ? (
                   roles.map((role) => (
                     <SelectItem
                       key={role}
                       value={role}
-                      className="hover:bg-blue-50 transition-colors duration-150"
+                      className="hover:bg-blue-50  transition-colors duration-150"
                     >
                       {role}
                     </SelectItem>
@@ -229,7 +229,7 @@ const EditUser: React.FC<EditUserProps> = ({
               >
                 <SelectValue placeholder="Chọn trạng thái" />
               </SelectTrigger>
-              <SelectContent className="bg-white shadow-lg rounded-md">
+              <SelectContent className="bg-white:bg-black shadow-lg rounded-md">
                 <SelectItem
                   value="active"
                   className="hover:bg-blue-50 transition-colors duration-150"
@@ -251,7 +251,7 @@ const EditUser: React.FC<EditUserProps> = ({
           <Button
             variant="outline"
             onClick={() => setEditingUser(null)}
-            className="px-6 py-2 text-gray-700 border-gray-300 hover:bg-gray-100 transition-all duration-200"
+            className="px-6 py-2 text-gray-700 dark:text-blue-500 border-gray-300 hover:bg-gray-100 transition-all duration-200"
           >
             Hủy
           </Button>

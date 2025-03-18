@@ -230,9 +230,9 @@ const ProductList: React.FC = () => {
   return (
     <>
       <Hero />
-      <div className="min-h-screen container mx-auto bg-gradient-to-br from-gray-100 via-white to-blue-50 px-4 py-8 md:px-6 lg:px-8">
+      <div className="min-h-screen container mx-auto  px-4 py-8 md:px-6 lg:px-8">
         <motion.h1
-          className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-12 tracking-tight"
+          className="text-4xl md:text-5xl font-bold  text-center mb-12 tracking-tight"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -281,7 +281,7 @@ const ProductList: React.FC = () => {
             currentProducts.map((product) => (
               <motion.div
                 key={product.id}
-                className="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300"
+                className="bg-white:bg-dark rounded-2xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.03 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
