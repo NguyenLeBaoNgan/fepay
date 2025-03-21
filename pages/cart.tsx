@@ -9,6 +9,7 @@ import {
   PlusIcon,
   ShoppingCartIcon,
 } from "@heroicons/react/24/outline";
+import { toast, ToastContainer } from "react-toastify";
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
@@ -25,14 +26,19 @@ const Cart: React.FC = () => {
       maximumFractionDigits: 0,
     }).format(amount);
   };
-
   const handleQuantityChange = async (index: number, newQuantity: number) => {
     if (newQuantity < 1) return;
+
     const updatedCartItems = [...cartItems];
     const updatedItem = updatedCartItems[index];
 
+    if (!updatedItem) {
+      toast.error("Sản phẩm không tồn tại trong giỏ hàng");
+      return;
+    }
+
     if (!updatedItem.product_id) {
-      console.error("Product ID is missing or invalid");
+      toast.error("Không thể cập nhật số lượng: Mã sản phẩm không hợp lệ");
       return;
     }
 
@@ -47,27 +53,80 @@ const Cart: React.FC = () => {
         updatedItem.total = updatedItem.price * newQuantity;
         setCartItems(updatedCartItems);
         localStorage.setItem("cart", JSON.stringify(updatedCartItems));
-        setError(null);
-      } else if (response.status === 400) {
-        const availableQuantity =
-          response.data.insufficient_stock[0]?.available_quantity;
-        if (newQuantity > availableQuantity) {
-          setError(
+        toast.success("Cập nhật số lượng thành công");
+      }
+    } catch (error: any) {
+      console.error("Lỗi từ server:", error.response?.data || error.message);
+
+      if (error.response && error.response.status === 400) {
+        const errorData = error.response.data[0];
+        if (
+          errorData &&
+          errorData.error?.toLowerCase().includes("insufficient stock")
+        ) {
+          const availableQuantity = errorData.available_quantity;
+          toast.error(
             `Số lượng không đủ trong kho. Còn lại: ${availableQuantity}`
           );
           updatedItem.quantity = availableQuantity;
           updatedItem.total = updatedItem.price * availableQuantity;
           setCartItems(updatedCartItems);
           localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+        } else {
+          const errorMessage = errorData?.error || "Yêu cầu không hợp lệ";
+          toast.error(`${errorMessage}. Vui lòng thử lại.`);
         }
+      } else {
+        toast.error(
+          "Đã xảy ra lỗi khi cập nhật số lượng. Vui lòng thử lại sau."
+        );
       }
-    } catch (err) {
-      console.error("Lỗi kiểm tra tồn kho:", err);
-      setError("Số lượng không đủ trong kho.");
     } finally {
       setIsLoading(false);
     }
   };
+  // const handleQuantityChange = async (index: number, newQuantity: number) => {
+  //   if (newQuantity < 1) return;
+  //   const updatedCartItems = [...cartItems];
+  //   const updatedItem = updatedCartItems[index];
+
+  //   if (!updatedItem.product_id) {
+  //     console.error("Product ID is missing or invalid");
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await axiosClient.post("/api/check-stock", {
+  //       items: [{ product_id: updatedItem.product_id, quantity: newQuantity }],
+  //     });
+
+  //     if (response.status === 200) {
+  //       updatedItem.quantity = newQuantity;
+  //       updatedItem.total = updatedItem.price * newQuantity;
+  //       setCartItems(updatedCartItems);
+  //       localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+  //       setError(null);
+  //     } else if (response.status === 400) {
+  //       const availableQuantity =
+  //         response.data.insufficient_stock[0]?.available_quantity;
+  //       if (newQuantity > availableQuantity) {
+  //         setError(
+  //           `Số lượng không đủ trong kho. Còn lại: ${availableQuantity}`
+  //         );
+  //         updatedItem.quantity = availableQuantity;
+  //         updatedItem.total = updatedItem.price * availableQuantity;
+  //         setCartItems(updatedCartItems);
+  //         localStorage.setItem("cart", JSON.stringify(updatedCartItems));
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Lỗi kiểm tra tồn kho:", err);
+  //     setError("Số lượng không đủ trong kho.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleRemoveItem = (index: number) => {
     const updatedCartItems = cartItems.filter((_, i) => i !== index);
@@ -84,12 +143,15 @@ const Cart: React.FC = () => {
 
   const handleCheckout = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      let count=5;
+    console.log("Token:", token);
+    if (!token || token.trim() === "") {
+      let count = 5;
       // setError("Vui lòng đăng nhập để tiếp tục thanh toán. Bạn sẽ được chuyển hướng đến trang đăng nhập sau ${count} giây.");
       const countdownInterval = setInterval(() => {
         count -= 1;
-        setError(`Vui lòng đăng nhập để tiếp tục thanh toán. Chuyển hướng sau ${count} giây.`);
+        setError(
+          `Vui lòng đăng nhập để tiếp tục thanh toán. Chuyển hướng sau ${count} giây.`
+        );
         if (count <= 0) {
           clearInterval(countdownInterval);
           router.push("auth/login");
@@ -428,6 +490,7 @@ const Cart: React.FC = () => {
         </div>
       </main>
       <Footer />
+      <ToastContainer />
     </div>
   );
 };

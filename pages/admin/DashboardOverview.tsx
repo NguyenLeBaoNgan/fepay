@@ -13,11 +13,12 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowUpCircle, ShoppingCart, Users } from "lucide-react";
+import { ArrowUpCircle, ShoppingCart, User2, Users, Users2Icon } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import axiosClient from "@/utils/axiosClient";
 import TopSellingProducts from "../topselling";
+import { FaMoneyBill } from "react-icons/fa";
 
 const monthNames = [
   "Jan",
@@ -147,7 +148,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               title="Đơn hàng"
               count={orders?.length}
               color="emerald"
-              icon={ArrowUpCircle}
+              icon={FaMoneyBill}
               year={year}
             />
             <StatCard

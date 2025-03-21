@@ -182,7 +182,7 @@ const User: React.FC<UserProps> = ({ users: initialUsers, onEdit, onDelete }) =>
               columns={[
                 { key: "name", label: "Tên người dùng" },
                 { key: "email", label: "Email" },
-                { key:"password", label: "Mật khẩu"},
+                // { key:"password", label: "Mật khẩu"},
                 { key: "roles", label: "Vai trò" },
                 { key: "status", label: "Trạng thái" },
               ]}

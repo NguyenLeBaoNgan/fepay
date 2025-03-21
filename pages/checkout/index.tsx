@@ -22,16 +22,35 @@ const CheckoutPage: React.FC = () => {
   const [note, setNote] = useState<string>("");
 
   // Xử lý token
+  // const token = Cookies.get("auth_token");
+  // let parsedToken = null;
+  // if (token) {
+  //   try {
+  //     parsedToken = JSON.parse(token);
+  //   } catch (error) {
+  //     console.error("Invalid token format:", error);
+  //   }
+  // }
+  // const userId = parsedToken?.user_id;
+
   const token = Cookies.get("auth_token");
-  let parsedToken = null;
+  let userId = null;
+
   if (token) {
     try {
-      parsedToken = JSON.parse(token);
-    } catch (error) {
-      console.error("Invalid token format:", error);
+      const parsed = JSON.parse(token);
+      userId = parsed?.user_id;
+    } catch (jsonError) {
+      try {
+        const payload = token.split(".")[1];
+        const decodedPayload = atob(payload);
+        const parsedJWT = JSON.parse(decodedPayload);
+        userId = parsedJWT?.user_id;
+      } catch (jwtError) {
+        console.error("Invalid token format:", jwtError);
+      }
     }
   }
-  const userId = parsedToken?.user_id;
 
   // Hàm định dạng tiền tệ
   const formatCurrency = (amount: number) =>
@@ -133,7 +152,9 @@ const CheckoutPage: React.FC = () => {
       });
 
       if (paymentResponse.data.success) {
-        setPaymentId(paymentResponse.data.payment?.id ||paymentResponse.data.payment_id);
+        setPaymentId(
+          paymentResponse.data.payment?.id || paymentResponse.data.payment_id
+        );
         if (selectedMethod === "bank_transfer") {
           setShowDialog(true);
           if (paymentResponse.data.transaction_id) {
@@ -190,7 +211,9 @@ const CheckoutPage: React.FC = () => {
     <>
       <Header />
       <div className="checkout-container container mx-auto p-6 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800:text-white">Checkout</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-800:text-white">
+          Checkout
+        </h1>
         <PaymentListener />
 
         {/* Thông báo */}
@@ -339,7 +362,11 @@ const CheckoutPage: React.FC = () => {
               Processing...
             </>
           ) : orderId ? (
-            selectedMethod === "cash_on_delivery" ? "Place Order" : "Pay Now"
+            selectedMethod === "cash_on_delivery" ? (
+              "Place Order"
+            ) : (
+              "Pay Now"
+            )
           ) : (
             "Checkout"
           )}

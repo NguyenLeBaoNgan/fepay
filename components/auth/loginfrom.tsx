@@ -73,8 +73,11 @@ const { login, setIsLoggedIn } = auth;
         throw new Error("Role is missing in the response.");
       }
 
-      const { role } = data;
-
+      const { role, token } = data;
+      if(!token) {
+        throw new Error("Token is missing in the response.");
+      }
+      localStorage.setItem("token", token);
       setIsLoggedIn(true);
 
       // Điều hướng dựa trên vai trò

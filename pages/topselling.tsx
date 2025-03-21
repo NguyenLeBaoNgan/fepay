@@ -42,7 +42,7 @@ export default function TopSellingProducts() {
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
-    <div className="max-w-md   p-4 bg-white shadow-lg rounded-lg">
+    <div className="max-w-md   p-4 bg-white:bg-dark shadow-lg rounded-lg">
       <h2 className="text-2xl font-bold mb-4 text-center">🔥 Top Sản Phẩm Bán Chạy</h2>
       <div className="flex flex-col space-y-6">
         {products.map((product, index) => (
